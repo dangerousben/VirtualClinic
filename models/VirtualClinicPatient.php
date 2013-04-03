@@ -19,8 +19,10 @@
  */
 
 /**
- * This is the model class for table "patient".
- *
+ * A virtual clinic patient is an extension of the class 'patient',
+ * and encapsulates the same attributes, as well as adding clinic-related
+ * elements.
+ * 
  * The followings are the available columns in table 'patient':
  * @property string  $id
  * @property string  $pas_key
@@ -39,7 +41,12 @@
  * @property string  $created_user_id
  * @property string  $last_modified_user_id
  * 
- * The followings are the available model relations:
+ * The patient is defined as a relation to the clinic patient:
+ * 
+ * @property Patient $patient
+ * 
+ * All patient relations are available, namely:
+ * 
  * @property Episode[] $episodes
  * @property Address[] $addresses
  * @property Address $address Primary address
@@ -50,9 +57,6 @@
  */
 class VirtualClinicPatient extends Patient {
 
-    const CHILD_AGE_LIMIT = 16;
-
-    public $use_pas = TRUE;
 
     /**
      * Returns the static model of the specified AR class.
