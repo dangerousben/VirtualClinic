@@ -17,7 +17,6 @@
  * @copyright Copyright (c) 2011-2012, OpenEyes Foundation
  * @license http://www.gnu.org/licenses/gpl-3.0.html The GNU General Public License V3.0
  */
-
 class VirtualClinicController extends BaseController {
 
     public $layout = '//layouts/column2';
@@ -46,13 +45,47 @@ class VirtualClinicController extends BaseController {
     }
 
     /**
+     * Use reflection to search through the list of sub-specialities and
+     * attempt to find module [SubSepcialityName]VirtualClinic. Note white
+     * space and special characters ('-', '&' etc.) are removed; so
+     * 'Accident & Emergency' becomes AccidentEmergency, for example.
+     * Therefore the sub-speciality name and module name are closely linked.
+     * 
+     * @return array list of key : value pairs of subspeciality_id : class_name
+     * pairs of implemented clinics. The empty list is returned if no
+     * clinics exist.
+     */
+    public static function getClinics() {
+        $clinics = array();
+        $subspecialities = Subspecialty::model()->findAll();
+        foreach ($subspecialities as $subspeciality) {
+            // we're creating a class name so strip out non-desirable characters:
+            $strippedName = preg_replace("/[^A-Za-z0-9]/", "", $subspeciality->name);
+            $strippedName = preg_replace("/[\s\W]/", "", $subspeciality->name);
+            $class_name = $strippedName . 'VirtualClinicModule';
+
+            try {
+                $module_name = 'application.modules.' . $strippedName
+                        . 'VirtualClinic.' . $class_name;
+                Yii::import($module_name, true);
+                if (class_exists($class_name, false)) {
+                    $clinics[$subspeciality->id] = $subspeciality->name;
+                }
+            } catch (Exception $ex) {
+                // TODO how to deal with exception? Report or just leave?
+            }
+        }
+        return $clinics;
+    }
+
+    /**
      * Lists all models.
      */
     public function actionIndex() {
         $this->render('index', array(
         ));
     }
-    
+
     /**
      * Updates the virtual clinic module for the specified patient.
      * 
@@ -63,7 +96,7 @@ class VirtualClinicController extends BaseController {
      * to update.
      */
     public static function updateClinic($patient_id, $data) {
-        
+
         $sql = "select patient_id from et_ophciglaucomaexamination_clinic"
                 . " where patient_id='" . $patient_id . "'";
         $res = Yii::app()->db->createCommand($sql)->query();
@@ -77,7 +110,7 @@ class VirtualClinicController extends BaseController {
         }
         foreach ($data as $key => $value) {
             $sql = "update et_ophciglaucomaexamination_clinic"
-                    . " set " . $key . "=:" . $key ." where patient_id="
+                    . " set " . $key . "=:" . $key . " where patient_id="
                     . $patient_id;
             $command = Yii::app()->db->createCommand($sql);
             $command->bindParam($key, $value);
@@ -97,6 +130,7 @@ class VirtualClinicController extends BaseController {
         $site_id = isset($_GET['site_id']) ? $_GET['site_id'] : '1';
         $sort_dir = isset($_GET['sort_dir']) ? $_GET['sort_dir'] : '0';
         $sort_by = isset($_GET['sort_by']) ? $_GET['sort_by'] : '0';
+        $clinic_id = isset($_GET['clinic_id']) ? $_GET['clinic_id'] : '0';
         $sort = ($sort_dir == 0) ? 'asc' : 'desc';
         switch ($sort_by) {
             case 0:
@@ -144,6 +178,7 @@ class VirtualClinicController extends BaseController {
             'sort_by' => $sort_by,
             'sort_dir' => $sort,
             'site_id' => $site_id,
+            'clinic_id' => $clinic_id,
                 ));
 
         $nr = $model->searchHospitalNumbers(array(
@@ -151,19 +186,21 @@ class VirtualClinicController extends BaseController {
             'pageSize' => $pageSize,
             'sort_by' => $sort_by,
             'sort_dir' => $sort,
-            'site_id' => $site_id));
+            'site_id' => $site_id,
+            'clinic_id' => $clinic_id,));
 
-            $pages = ceil($nr / $pageSize);
-            $content = $this->render('results', array(
-                'dataProvider' => $dataProvider,
-                'pages' => $pages,
-                'items_per_page' => $pageSize,
-                'total_items' => $nr,
-                'pagen' => $page_num,
-                'sort_by' => isset($_GET['sort_by']) ? $_GET['sort_by'] : 0,
-                'sort_dir' => $sort_dir,
-                'site_id' => $site_id,
-            ));
+        $pages = ceil($nr / $pageSize);
+        $content = $this->render('results', array(
+            'dataProvider' => $dataProvider,
+            'pages' => $pages,
+            'items_per_page' => $pageSize,
+            'total_items' => $nr,
+            'pagen' => $page_num,
+            'sort_by' => isset($_GET['sort_by']) ? $_GET['sort_by'] : 0,
+            'sort_dir' => $sort_dir,
+            'site_id' => $site_id,
+            'clinic_id' => $clinic_id,
+                ));
 //        }
     }
 

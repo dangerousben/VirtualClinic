@@ -121,7 +121,7 @@ class VirtualClinicPatient extends Patient {
         $criteria->join = "JOIN contact ON contact.parent_id = t.patient_id AND contact.parent_class='Patient'"
                 . " JOIN patient ON patient.id = t.patient_id";
 
-        $criteria->condition = 'site_id=' . $params['site_id'];
+        $criteria->condition = 'site_id=' . $params['site_id'] . ' and subspeciality_id=' . $params['clinic_id'];
         if (is_array($params['sort_by'])) {
             foreach($params['sort_by'] as $sort) {
                 $criteria->order = $sort . ' ' . $params['sort_dir'];
