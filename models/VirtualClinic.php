@@ -48,7 +48,7 @@ class VirtualClinic {
             $base_name = $this->specialityToCamelCase($subspeciality->name) . 'VirtualClinic';
             $class_name = $base_name . 'Module';
             try {
-                $module_name = 'application.modules.clinic.' . $base_name
+                $module_name = 'application.modules.' . $base_name
                         . '.' . $class_name;
                 Yii::import($module_name, true);
                 if (class_exists($class_name, true)) {
@@ -89,7 +89,7 @@ class VirtualClinic {
         $base_name = $this->specialityToCamelCase($subspeciality) . 'VirtualClinic';
         $class_name = $base_name . 'Module';
         try {
-            $module_name = 'application.modules.clinic.' . $base_name
+            $module_name = 'application.modules.' . $base_name
                     . '.' . $class_name;
             Yii::import($module_name, true);
             if (class_exists($class_name, true)) {
@@ -102,12 +102,19 @@ class VirtualClinic {
         return $columns;
     }
 
+    /**
+     * 
+     * @param type $pid
+     * @param type $subspeciality
+     * @param type $columnName
+     * @return type
+     */
     public function getColumnValue($pid, $subspeciality, $columnName) {
         $value = null;
         $base_name = $this->specialityToCamelCase($subspeciality) . 'VirtualClinic';
         $class_name = $base_name . 'Module';
         try {
-            $module_name = 'application.modules.clinic.' . $base_name
+            $module_name = 'application.modules.' . $base_name
                     . 'VirtualClinic.' . $class_name;
             Yii::import($module_name, true);
             if (class_exists($class_name, false)) {
