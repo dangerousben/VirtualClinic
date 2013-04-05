@@ -20,7 +20,8 @@
 
 <?php
 
-$clinics = VirtualClinicController::getClinics();
+$clinic = new VirtualClinic();
+$clinics = $clinic->getClinics();
 $sites = Site::model()->findAll();
 
 $siteStr = "No site selected";
@@ -85,7 +86,7 @@ if ($clinic_id > 0) {
                                 <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/11/<?php echo $site_id ?>/<?php echo $clinic_id ?>">S/B</a></th>
                                     <!-- speciality-specific column headings: -->
                                     <?php
-                                    $cols = VirtualClinicController::getColumnNames($clinics[$clinic_id]);
+                                    $cols = $clinic->getColumnNames($clinics[$clinic_id]);
                                     foreach($cols as $col_index => $column) {
                                         ?>
                                     <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/11/<?php echo $site_id ?>/<?php echo $clinic_id ?>"><?php echo $column ?></a></th>
@@ -120,11 +121,11 @@ if ($clinic_id > 0) {
                                         ?></td>
                                     <!-- speciality-specific column values: -->
                                     <?php
-                                    $cols = VirtualClinicController::getColumnNames($clinics[$clinic_id]);
+                                    $cols = $clinic->getColumnNames($clinics[$clinic_id]);
                                     foreach($cols as $col_index => $column) {
-                                        $value = VirtualClinicController::getColumnValue($result->patient->id, $clinics[$clinic_id], $column);
+                                        $value = $clinic->getColumnValue($result->patient->id, $clinics[$clinic_id], $column);
                                         ?>
-                                    <td style="vertical-align:middle"><?php echo VirtualClinicController::formatTableData($value, array('LE: ', 'RE: ')) ?></td>
+                                    <td style="vertical-align:middle"><?php echo $clinic->formatTableData($value, array('LE: ', 'RE: ')) ?></td>
                                     <?php
                                     }?>
                                     <!-- end of speciality-specific column values -->
