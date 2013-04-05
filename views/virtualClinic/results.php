@@ -83,6 +83,16 @@ if ($clinic_id > 0) {
                                 <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/2/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Last Name</a></th>
                                 <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/3/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Age</a></th>
                                 <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/11/<?php echo $site_id ?>/<?php echo $clinic_id ?>">S/B</a></th>
+                                    <!-- speciality-specific column headings: -->
+                                    <?php
+                                    $cols = VirtualClinicController::getColumnNames($clinics[$clinic_id]);
+                                    foreach($cols as $col_index => $column) {
+                                        ?>
+                                    <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/11/<?php echo $site_id ?>/<?php echo $clinic_id ?>"><?php echo $column ?></a></th>
+                                    <?php
+                                    }?>
+                                    <!-- end of speciality-specific column headings -->
+                                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/11/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Follow Up</a></th>
                                 <th id="patient-grid_c0" width="8%"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/6/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Date</a></th>
     <!--										<th id="patient-grid_c5">Site</th>-->
                                 <th id="patient-grid_c5" width="3%">5yr Risk</th>
@@ -92,7 +102,6 @@ if ($clinic_id > 0) {
                         </thead>
                         <tbody>
                             <?php
-                            $pants = $dataProvider->getData();
                             foreach ($dataProvider->getData() as $i => $result) {
                                 ?>
                                 <tr class="<?php if ($i % 2 == 0) { ?>even<?php } else { ?>odd<?php } ?>">
@@ -109,6 +118,18 @@ if ($clinic_id > 0) {
                                                     . substr($user->last_name, 0, 1);
                                             }
                                         ?></td>
+                                    <!-- speciality-specific column values: -->
+                                    <?php
+                                    $cols = VirtualClinicController::getColumnNames($clinics[$clinic_id]);
+                                    foreach($cols as $col_index => $column) {
+                                        $value = VirtualClinicController::getColumnValue($result->patient->id, $clinics[$clinic_id], $column);
+                                        ?>
+                                    <td style="vertical-align:middle"><?php echo VirtualClinicController::formatTableData($value, array('LE: ', 'RE: ')) ?></td>
+                                    <?php
+                                    }?>
+                                    <!-- end of speciality-specific column values -->
+                                    
+                                    <td style="vertical-align:middle"><?php echo $result->follow_up ?></td>
                                     <td style="vertical-align:middle"><?php
                                 if ($result->visit_date) {
                                     $date = new DateTime($result->visit_date);

@@ -65,6 +65,7 @@ class m130402_121135_initial_migration extends CDbMigration {
                 'subspeciality_id' => 'int(10) unsigned default 0',
                 'site_id' => 'int(10) unsigned default 0',
                 'seen_by_user_id' => 'int(10) unsigned default 0',
+                'follow_up' => 'varchar(50)',
                 'reviewed' => 'int(1) unsigned default 0',
                 'flag' => 'int(1) unsigned default 0',
                 'visit_date' => 'datetime',

@@ -59,16 +59,13 @@ class VirtualClinicController extends BaseController {
         $clinics = array();
         $subspecialities = Subspecialty::model()->findAll();
         foreach ($subspecialities as $subspeciality) {
-            // we're creating a class name so strip out non-desirable characters:
-            $strippedName = preg_replace("/[^A-Za-z0-9]/", "", $subspeciality->name);
-            $strippedName = preg_replace("/[\s\W]/", "", $subspeciality->name);
-            $class_name = $strippedName . 'VirtualClinicModule';
-
+            $base_name = VirtualClinicController::specialityToCamelCase($subspeciality->name) . 'VirtualClinic';
+            $class_name = $base_name . 'Module';
             try {
-                $module_name = 'application.modules.' . $strippedName
-                        . 'VirtualClinic.' . $class_name;
+                $module_name = 'application.modules.' . $base_name
+                        . '.' . $class_name;
                 Yii::import($module_name, true);
-                if (class_exists($class_name, false)) {
+                if (class_exists($class_name, true)) {
                     $clinics[$subspeciality->id] = $subspeciality->name;
                 }
             } catch (Exception $ex) {
@@ -76,6 +73,89 @@ class VirtualClinicController extends BaseController {
             }
         }
         return $clinics;
+    }
+
+    /**
+     * Remove all non-alpha numeric chararcters, including white space, from
+     * the specified string.
+     * 
+     * @param type $speciality
+     */
+    public static function specialityToCamelCase($speciality) {
+
+        // we're creating a class name so strip out non-desirable characters:
+        return preg_replace("/[\s\W]/", "", preg_replace("/[^A-Za-z0-9]/", "", $speciality));
+    }
+
+    /**
+     * Use reflection to search through the list of sub-specialities and
+     * attempt to find module [SubSepcialityName]VirtualClinic. Note white
+     * space and special characters ('-', '&' etc.) are removed; so
+     * 'Accident & Emergency' becomes AccidentEmergency, for example.
+     * Therefore the sub-speciality name and module name are closely linked.
+     * 
+     * @return array list of key : value pairs of subspeciality_id : class_name
+     * pairs of implemented clinics. The empty list is returned if no
+     * clinics exist.
+     */
+    public static function getColumnNames($subspeciality) {
+        $columns = array();
+        $base_name = VirtualClinicController::specialityToCamelCase($subspeciality) . 'VirtualClinic';
+        $class_name = $base_name . 'Module';
+        try {
+            $module_name = 'application.modules.' . $base_name
+                    . '.' . $class_name;
+            Yii::import($module_name, true);
+            if (class_exists($class_name, true)) {
+                $clinic = new $class_name();
+                $columns = array_keys($clinic->columns);
+            }
+        } catch (Exception $ex) {
+            // TODO how to deal with exception? Report or just leave?
+        }
+        return $columns;
+    }
+
+    public static function getColumnValue($pid, $subspeciality, $columnName) {
+        $value = null;
+        $base_name = VirtualClinicController::specialityToCamelCase($subspeciality) . 'VirtualClinic';
+        $class_name = $base_name . 'Module';
+        try {
+            $module_name = 'application.modules.' . $base_name
+                    . 'VirtualClinic.' . $class_name;
+            Yii::import($module_name, true);
+            if (class_exists($class_name, false)) {
+                $clinic = new $class_name();
+                $value = $clinic->getColumnValue($pid, $subspeciality, $columnName);
+            }
+        } catch (Exception $ex) {
+            // TODO how to deal with exception? Report or just leave?
+        }
+        return $value;
+    }
+    
+    /**
+     * 
+     * @param type $data
+     * @return type
+     */
+    public static function formatTableData($data, $prefixes = null) {
+        $text = "";
+        if (is_array($data)) {
+            for ($i = 0; $i < count($data) - 1; $i++) {
+                if ($prefixes) {
+                    $text = $text . $prefixes[$i];
+                }
+                $text = $text . $data[$i] . "<br>";
+            }
+            if ($prefixes) {
+                $text = $text . $prefixes[$i];
+            }
+            $text = $text . $data[$i];
+        } else {
+            $text = $data;
+        }
+        return $text;
     }
 
     /**
@@ -97,19 +177,19 @@ class VirtualClinicController extends BaseController {
      */
     public static function updateClinic($patient_id, $data) {
 
-        $sql = "select patient_id from et_ophciglaucomaexamination_clinic"
+        $sql = "select patient_id from virtual_clinic_patient"
                 . " where patient_id='" . $patient_id . "'";
         $res = Yii::app()->db->createCommand($sql)->query();
         if (!$res->count()) {
             // we've never added this patient to the clinic before, so add them
-            $sql = "insert into et_ophciglaucomaexamination_clinic"
+            $sql = "insert into virtual_clinic_patient"
                     . " (patient_id) values (:patient_id)";
             $command = Yii::app()->db->createCommand($sql);
             $command->bindParam("patient_id", $patient_id);
             $command->execute();
         }
         foreach ($data as $key => $value) {
-            $sql = "update et_ophciglaucomaexamination_clinic"
+            $sql = "update virtual_clinic_patient"
                     . " set " . $key . "=:" . $key . " where patient_id="
                     . $patient_id;
             $command = Yii::app()->db->createCommand($sql);
