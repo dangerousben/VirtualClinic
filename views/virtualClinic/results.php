@@ -183,7 +183,7 @@ if ($clinic_id > 0) {
                 return true;
             }
             //                                    window.location.href = '/patient/viewhosnum/'+$(this).parent().children(":first").html();
-            window.location.href = '/GlaucomaVirtualClinic/summary/view/'+$(this).parent().children(":first").html();
+            window.location.href = '/<?php echo $clinics[$clinic_id]?>VirtualClinic/summary/view/'+$(this).parent().children(":first").html();
             return false;
         });
     </script>
