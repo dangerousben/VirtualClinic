@@ -45,11 +45,9 @@ class VirtualClinic {
         $clinics = array();
         $subspecialities = Subspecialty::model()->findAll();
         foreach ($subspecialities as $subspeciality) {
-            $base_name = $this->specialityToCamelCase($subspeciality->name) . 'VirtualClinic';
-            $class_name = $base_name . 'Module';
+            $class_name = $this->getClinicName($subspeciality->name) . 'Module';
             try {
-                $module_name = 'application.modules.' . $base_name
-                        . '.' . $class_name;
+                $module_name = $this->getModuleName($subspeciality->name) .  '.' . $class_name;
                 Yii::import($module_name, true);
                 if (class_exists($class_name, true)) {
                     $clinics[$subspeciality->id] = $subspeciality->name;
@@ -59,18 +57,6 @@ class VirtualClinic {
             }
         }
         return $clinics;
-    }
-
-    /**
-     * Remove all non-alpha numeric chararcters, including white space, from
-     * the specified string.
-     * 
-     * @param type $speciality
-     */
-    public function specialityToCamelCase($speciality) {
-
-        // we're creating a class name so strip out non-desirable characters:
-        return preg_replace("/[\s\W]/", "", preg_replace("/[^A-Za-z0-9]/", "", $speciality));
     }
 
     /**
@@ -86,11 +72,9 @@ class VirtualClinic {
      */
     public function getColumnNames($subspeciality) {
         $columns = array();
-        $base_name = $this->specialityToCamelCase($subspeciality) . 'VirtualClinic';
-        $class_name = $base_name . 'Module';
+        $class_name = $this->getClinicName($subspeciality) . 'Module';
         try {
-            $module_name = 'application.modules.' . $base_name
-                    . '.' . $class_name;
+            $module_name = $this->getModuleName($subspeciality).  '.' . $class_name;
             Yii::import($module_name, true);
             if (class_exists($class_name, true)) {
                 $clinic = new $class_name();
@@ -111,11 +95,9 @@ class VirtualClinic {
      */
     public function getColumnValue($pid, $subspeciality, $columnName) {
         $value = null;
-        $base_name = $this->specialityToCamelCase($subspeciality) . 'VirtualClinic';
-        $class_name = $base_name . 'Module';
+        $class_name = $this->getClinicName($subspeciality) . 'Module';
         try {
-            $module_name = 'application.modules.' . $base_name
-                    . 'VirtualClinic.' . $class_name;
+            $module_name = $this->getModuleName($subspeciality). '.' . $class_name;
             Yii::import($module_name, true);
             if (class_exists($class_name, false)) {
                 $clinic = new $class_name();
@@ -183,7 +165,7 @@ class VirtualClinic {
      * @param type $obj
      * @param type $children
      */
-    function getLeafMember($obj, $children) {
+    private function getLeafMember($obj, $children) {
         $ret = null;
         if (count($children) > 1) {
             $ret = $this->getLeafMember($obj[$children[0]], array_slice($children, 1));
@@ -191,6 +173,44 @@ class VirtualClinic {
             $ret = $obj[$children[0]];
         }
         return $ret;
+    }
+
+    /**
+     * Remove all non-alpha numeric chararcters, including white space, from
+     * the specified string.
+     * 
+     * @param string $speciality the speciality with white space and non-
+     * alpha numeric characters removed.
+     */
+    private function specialityToCamelCase($speciality) {
+
+        // we're creating a class name so strip out non-desirable characters:
+        return preg_replace("/[\s\W]/", "", preg_replace("/[^A-Za-z0-9]/", "", $speciality));
+    }
+    
+    /**
+     * Gets the full path of the module as a dot-separated package name.
+     * 
+     * @param type $subspeciality the subspeciality of the clinic that defines
+     * the module path and name.
+     * 
+     * @return string the name of the module, in the format
+     * application.modules.[subspeciality]VirtualClinic
+     */
+    private function getModuleName($subspeciality) {
+        return 'application.modules.' . $this->getClinicName($subspeciality);
+    }
+    
+    /**
+     * Gets the name of the clinic.
+     * 
+     * @param type $subspeciality the subspeciality of the clinic.
+     * 
+     * @return string the name of the subspeciality, suffixed 
+     * with 'VirtualClinic'.
+     */
+    private function getClinicName($subspeciality) {
+        return $this->specialityToCamelCase($subspeciality) . 'VirtualClinic';
     }
 
     /**
