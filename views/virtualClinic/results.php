@@ -89,7 +89,8 @@ if ($clinic_id > 0) {
                                     $cols = $clinic->getColumnNames($clinics[$clinic_id]);
                                     foreach($cols as $col_index => $column) {
                                         ?>
-                                    <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/11/<?php echo $site_id ?>/<?php echo $clinic_id ?>"><?php echo $column ?></a></th>
+<!--                                    <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php // echo $pagen ?>/<?php // if ($sort_dir == 0) { ?>1<?php // } else { ?>0<?php // } ?>/11/<?php // echo $site_id ?>/<?php // echo $clinic_id ?>"><?php // echo $column ?></a></th>-->
+                                    <th id="patient-grid_c0"><?php echo $column ?></th>
                                     <?php
                                     }?>
                                     <!-- end of speciality-specific column headings -->
