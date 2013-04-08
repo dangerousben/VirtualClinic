@@ -126,7 +126,7 @@ if ($clinic_id > 0) {
                                     foreach($cols as $col_index => $column) {
                                         $value = $clinic->getColumnValue($result->patient->id, $clinics[$clinic_id], $column);
                                         ?>
-                                    <td style="vertical-align:middle"><?php echo $clinic->formatTableData($value, array('LE: ', 'RE: ')) ?></td>
+                                    <td style="vertical-align:middle"><?php echo $clinic->formatTableData($clinics[$clinic_id], $column, $value) ?></td>
                                     <?php
                                     }?>
                                     <!-- end of speciality-specific column values -->

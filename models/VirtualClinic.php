@@ -101,7 +101,7 @@ class VirtualClinic {
             Yii::import($module_name, true);
             if (class_exists($class_name, false)) {
                 $clinic = new $class_name();
-                $value = $this->getColumnValues($pid, $subspeciality, $columnName, $clinic->columns[$columnName]);
+                $value = $this->getColumnValues($pid, $clinic->columns[$columnName]);
             }
         } catch (Exception $ex) {
             // TODO how to deal with exception? Report or just leave?
@@ -110,27 +110,43 @@ class VirtualClinic {
     }
 
     /**
+     * Attempts to format the data for the specified column and clinic.
+     * Note that this method attempts to determine if the specified clinic
+     * has a predefined method named 'formatData($columnName, $data)'. If it
+     * does, it calls the specified method. It is up to implementing clinics
+     * to determine if they need to format the data for the specified column;
+     * formatting can do extra tings, like create a canvas for eyedraw elements,
+     * for example.
      * 
-     * @param type $data
-     * @return type
+     * If there is no such method, or the method returns null, the
+     * following is returned:
+     * 
+     * - if the data is an array, each element is returned separated by the
+     * HTML BR element, separating each element in the data in a row;
+     * - otherwise, the data itself is returned.
+     * 
+     * @param mixed $data the data to be formatted.
+     * 
+     * @return string the formatted table data.
      */
-    public function formatTableData($data, $prefixes = null) {
-        $text = "";
-        if (is_array($data)) {
-            for ($i = 0; $i < count($data) - 1; $i++) {
-                if ($prefixes) {
-                    $text = $text . $prefixes[$i];
-                }
-                $text = $text . $data[$i] . "<br>";
-            }
-            if ($prefixes) {
-                $text = $text . $prefixes[$i];
-            }
-            $text = $text . $data[$i];
-        } else {
-            $text = $data;
+    public function formatTableData($clinicName, $columnName, $data) {
+        
+        $clinic = $this->getClinicName($clinicName) . 'Module';
+        if (method_exists($clinic, 'formatData')) {
+            $value = $clinic::formatData($columnName, $data);
         }
-        return $text;
+        if (!isset($value)) {
+            if (is_array($data)) {
+                $value = "";
+                for ($i = 0; $i < count($data) - 1; $i++) {
+                    $value = $value . $data[$i] . "<br>";
+                }
+                $value = $value . $data[$i];
+            } else {
+                $value = $data;
+            }
+        }
+        return $value;
     }
 
     /**
@@ -140,12 +156,12 @@ class VirtualClinic {
      * @param type $columnName
      * @return type
      */
-    public function getColumnValues($pid, $speciality, $columnName, $col) {
+    public function getColumnValues($pid, $col) {
         $event_type = $col['event_type'];
         $class_name = $col['class_name'];
         $field = $col['field'];
         $f = new $class_name();
-        $obj = $this->getElementForLatestEventInEpisode($pid, $event_type, $f, $speciality, $columnName);
+        $obj = $this->getElementForLatestEventInEpisode($pid, $event_type, $f);
         $ret = null;
         if ($obj) {
             if (is_array($field)) {
@@ -253,7 +269,7 @@ class VirtualClinic {
     }
 
     /**
-     * 
+     * Gets the 
      * @param int $patient_id
      * @param type $event_class
      * @param type $element
@@ -261,11 +277,12 @@ class VirtualClinic {
      * @param type $columnName
      * @return type
      */
-    public function getElementForLatestEventInEpisode($patient_id, $event_class, $element, $speciality, $columnName) {
+    public function getElementForLatestEventInEpisode($patient_id, $event_class, $element) {
         $event_type = $this->getEventType($event_class);
-
-        if ($episode = $this->getEpisodeForCurrentSubspecialty($patient_id)) {
-            if ($event = $episode->getMostRecentEventByType($event_type->id)) {
+        $episode = $this->getEpisodeForCurrentSubspecialty($patient_id);
+        if ($episode) {
+            $event = $episode->getMostRecentEventByType($event_type->id);
+            if ($event) {
                 $criteria = new CDbCriteria;
                 $epid = $episode->id;
                 $eid = $event->id;
