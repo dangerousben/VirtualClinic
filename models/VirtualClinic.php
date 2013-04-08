@@ -77,7 +77,7 @@ class VirtualClinic {
             $module_name = $this->getModuleName($subspeciality).  '.' . $class_name;
             Yii::import($module_name, true);
             if (class_exists($class_name, true)) {
-                $clinic = new $class_name();
+                $clinic = new $class_name($this->getClinicName($subspeciality), null);
                 $columns = array_keys($clinic->columns);
             }
         } catch (Exception $ex) {
@@ -100,7 +100,7 @@ class VirtualClinic {
             $module_name = $this->getModuleName($subspeciality). '.' . $class_name;
             Yii::import($module_name, true);
             if (class_exists($class_name, false)) {
-                $clinic = new $class_name();
+                $clinic = new $class_name($this->getClinicName($subspeciality), null);
                 $value = $this->getColumnValues($pid, $clinic->columns[$columnName]);
             }
         } catch (Exception $ex) {
