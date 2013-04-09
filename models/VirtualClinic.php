@@ -284,8 +284,6 @@ class VirtualClinic {
             $event = $episode->getMostRecentEventByType($event_type->id);
             if ($event) {
                 $criteria = new CDbCriteria;
-                $epid = $episode->id;
-                $eid = $event->id;
                 $criteria->compare('episode_id', $episode->id);
                 $criteria->compare('event_id', $event->id);
                 $criteria->order = 'datetime desc';
