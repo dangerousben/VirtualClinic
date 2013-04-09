@@ -87,11 +87,17 @@ class VirtualClinic {
     }
 
     /**
+     * Get all values for the specified column.
      * 
-     * @param type $pid
-     * @param type $subspeciality
-     * @param type $columnName
-     * @return type
+     * @param type $pid the patient to search for.
+     * 
+     * @param type $columnName the column to get the values for.
+     * 
+     * @param string $subspeciality the clinic to get the values from.
+     * 
+     * @return mixed if the column, as given by the clinic's column definitions
+     * contains only one value, then that value is returned; otherwise
+     * an array of values is returned.
      */
     public function getColumnValue($pid, $subspeciality, $columnName) {
         $value = null;
@@ -136,6 +142,8 @@ class VirtualClinic {
             $value = $clinic::formatData($columnName, $data);
         }
         if (!isset($value)) {
+            // no formatting provided; if there are multiple elements,
+            // separate them by break markup:
             if (is_array($data)) {
                 $value = "";
                 for ($i = 0; $i < count($data) - 1; $i++) {
@@ -150,18 +158,23 @@ class VirtualClinic {
     }
 
     /**
+     * Get all values for the specified column.
      * 
-     * @param type $pid
-     * @param type $speciality
-     * @param type $columnName
-     * @return type
+     * @param type $pid the patient to search for.
+     * 
+     * @param type $columnName the column to get the values for.
+     * 
+     * @return mixed if the column, as given by the clinic's column definitions
+     * contains only one value, then that value is returned; otherwise
+     * an array of values is returned.
      */
     public function getColumnValues($pid, $col) {
         $event_type = $col['event_type'];
         $class_name = $col['class_name'];
         $field = $col['field'];
-        $f = new $class_name();
-        $obj = $this->getElementForLatestEventInEpisode($pid, $event_type, $f);
+        $nameOfClass = new $class_name();
+        $obj = $this->getElementForLatestEventInEpisode($pid, $event_type,
+                $nameOfClass);
         $ret = null;
         if ($obj) {
             if (is_array($field)) {
@@ -177,9 +190,18 @@ class VirtualClinic {
     }
 
     /**
+     * Recursive function to traverse an object graph/tree to extract a
+     * member variable. For any list of child objects greater than one,
+     * the first child becomes the object instance for the function
+     * when called recursively and the process is performed again for all
+     * remaining children.
      * 
-     * @param type $obj
-     * @param type $children
+     * @param instance $obj the non-null obejct to traverse the graph for.
+     * @param array $children an array of string values for an object graph
+     * to traverse.
+     * 
+     * @return object the value held in the leaf node of the tree, if it
+     * exists.
      */
     private function getLeafMember($obj, $children) {
         $ret = null;
@@ -269,13 +291,14 @@ class VirtualClinic {
     }
 
     /**
-     * Gets the 
-     * @param int $patient_id
-     * @param type $event_class
-     * @param type $element
-     * @param type $speciality
-     * @param type $columnName
-     * @return type
+     * Gets the last element for the specified episode.
+     * 
+     * @param int $patient_id the patient ID to search for the episode and
+     * element.
+     * @param string $event_class the event class to search for.
+     * @param string $element the name to search for.
+     * @return instance an instance of the specified element if it exists;
+     * null otherwise.
      */
     public function getElementForLatestEventInEpisode($patient_id, $event_class, $element) {
         $event_type = $this->getEventType($event_class);
