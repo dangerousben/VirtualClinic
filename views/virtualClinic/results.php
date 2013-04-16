@@ -33,7 +33,7 @@ if ($clinic_id > 0 && isset($clinics[$clinic_id])) {
     $clinicStr = "Clinic: " . $clinics[$clinic_id];
 }
 ?>
-<!--<p><strong><?php // echo $siteStr ?>, <?php // echo $clinicStr ?></strong>-->
+<!--<p><strong><?php // echo $siteStr  ?>, <?php // echo $clinicStr  ?></strong>-->
 <div class="wrapTwo clearfix">
     <div >
 
@@ -63,7 +63,6 @@ if ($clinic_id > 0 && isset($clinics[$clinic_id])) {
                     <option value="">- Please select -</option>
                     <?php
                     foreach ($clinics as $c_id => $clinic_name) {
-                        $foo = $c_id;   
                         if ($clinic_id != $c_id) {
                             ?>
                             <option value = "/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site_id ?>/<?php echo $clinic_id ?>/"><?php echo $clinic_name ?></option>
@@ -104,7 +103,7 @@ if ($clinic_id > 0 && isset($clinics[$clinic_id])) {
                                 $cols = $clinic->getColumnNames($clinics[$clinic_id]);
                                 foreach ($cols as $col_index => $column) {
                                     ?>
-                        <!--                                    <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php // echo $pagen     ?>/<?php // if ($sort_dir == 0) {     ?>1<?php // } else {     ?>0<?php // }     ?>/11/<?php // echo $site_id     ?>/<?php // echo $clinic_id     ?>"><?php // echo $column     ?></a></th>-->
+                            <!--                                    <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php // echo $pagen      ?>/<?php // if ($sort_dir == 0) {      ?>1<?php // } else {      ?>0<?php // }      ?>/11/<?php // echo $site_id      ?>/<?php // echo $clinic_id      ?>"><?php // echo $column      ?></a></th>-->
                                     <th id="patient-grid_c0"><?php echo $column ?></th>
                                 <?php }
                                 ?>
@@ -128,11 +127,11 @@ if ($clinic_id > 0 && isset($clinics[$clinic_id])) {
                                     <td style="vertical-align:middle"><?php echo $result->patient->getAge() ?></td>
                                     <td style="vertical-align:middle">
                                         <?php
-                                        $uid = $result->seen_by_user_id;
-                                        $user = User::model()->findByPk($uid);
-                                        if ($user && $user->first_name && $user->last_name) {
-                                            echo substr($user->first_name, 0, 1)
-                                            . substr($user->last_name, 0, 1);
+                                        $firm_id = $result->seen_by_user_id;
+
+                                        $firm = Firm::model()->findByPk($firm_id);
+                                        if (isset($firm) && $firm->name) {
+                                            echo $firm->name;
                                         }
                                         ?></td>
                                     <!-- speciality-specific column values: -->
@@ -156,7 +155,7 @@ if ($clinic_id > 0 && isset($clinics[$clinic_id])) {
                                     <!--td style="vertical-align:middle">ODTC</td-->
                                     <td style="vertical-align:middle">0%<?php ?></td>
                                     <td style="vertical-align:middle"><input type="checkbox" name="flag" value="Bike" /></td>
-                                    <td style="vertical-align:middle"><input type="checkbox" name="reviewed" value="Bike" /><?php // echo $result->nhs_num      ?></td>
+                                    <td style="vertical-align:middle"><input type="checkbox" name="reviewed" value="Bike" /><?php // echo $result->nhs_num       ?></td>
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -180,7 +179,7 @@ if ($clinic_id > 0 && isset($clinics[$clinic_id])) {
                                 $to = $total_items;
                             }
                             ?>
-                            <!--span class="otherPages"><a href="/virtualClinic/results/<?php // echo $first_name     ?>/<?php // echo $last_name     ?>/<?php // echo $nhs_num     ?>/<?php // echo $gender     ?>/<?php // echo $sort_by     ?>/<?php // echo $sort_dir     ?>/<?php // echo $i+1     ?>"><?php // echo 1+($i*$items_per_page)     ?> - <?php // echo $to     ?></a></span-->
+                            <!--span class="otherPages"><a href="/virtualClinic/results/<?php // echo $first_name      ?>/<?php // echo $last_name      ?>/<?php // echo $nhs_num      ?>/<?php // echo $gender      ?>/<?php // echo $sort_by      ?>/<?php // echo $sort_dir      ?>/<?php // echo $i+1      ?>"><?php // echo 1+($i*$items_per_page)      ?> - <?php // echo $to      ?></a></span-->
                             <span class="otherPages"><a href="/virtualClinic/results/<?php echo $i + 1 ?>/<?php if ($sort_dir == 0) { ?>0<?php } else { ?>1<?php } ?>/<?php echo $sort_by ?>"><?php echo 1 + ($i * $items_per_page) ?> - <?php echo $to ?></a></span>
                         <?php } ?>
                     <?php } ?>
