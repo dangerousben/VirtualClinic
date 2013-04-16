@@ -33,7 +33,7 @@ if ($clinic_id > 0 && isset($clinics[$clinic_id])) {
     $clinicStr = "Clinic: " . $clinics[$clinic_id];
 }
 ?>
-<p><strong><?php echo $siteStr ?>, <?php echo $clinicStr ?></strong>
+<!--<p><strong><?php // echo $siteStr ?>, <?php // echo $clinicStr ?></strong>-->
 <div class="wrapTwo clearfix">
     <div >
 
