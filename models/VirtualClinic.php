@@ -56,6 +56,16 @@ class VirtualClinic {
                 // TODO how to deal with exception? Report or just leave?
             }
         }
+        
+        // now deal with non-subspeciality clinics; this is special, since
+        // we use the offset of the number of subspeciality clinics to determine
+        // which non-subspeciality clinic to use - see
+        // VirtualClinicPatient::getRealClinicId(clinicId) for more information.
+        $nonSubspecialityClinics = VirtualClinicType::model()->findAll();
+        $offset = count($subspecialities);
+        foreach($nonSubspecialityClinics as $clinic) {
+            $clinics[++$offset] = $clinic->name;
+        }
         return $clinics;
     }
 

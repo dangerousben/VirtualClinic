@@ -114,24 +114,6 @@ class VirtualClinicController extends BaseController {
             case 4:
                 $sort_by = 'seen_by_user_id';
                 break;
-//            case 4:
-//                $sort_by = array('iop_left', 'iop_right');
-//                break;
-//            case 5:
-//                $sort_by = array('diagnoses_left', 'diagnoses_right');
-//                break;
-//            case 6:
-//                $sort_by = 'visit_date';
-//                break;
-//            case 7:
-//                $sort_by = 'comment';
-//                break;
-//            case 8:
-//                $sort_by = array('meds_left', 'meds_right');
-//                break;
-//            case 9:
-//                $sort_by = array('cct_left', 'cct_right');
-//                break;
             case 5:
                 $sort_by = 'follow_up';
                 break;

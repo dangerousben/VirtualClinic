@@ -57,7 +57,6 @@
  */
 class VirtualClinicPatient extends Patient {
 
-
     /**
      * Returns the static model of the specified AR class.
      * @return Patient the static model class
@@ -78,12 +77,6 @@ class VirtualClinicPatient extends Patient {
      */
     public function rules() {
         return array(
-//			array('pas_key', 'length', 'max' => 10),
-//			array('hos_num, nhs_num', 'length', 'max' => 40),
-//			array('gender', 'length', 'max' => 1),
-//			array('dob, date_of_death', 'safe'),
-//			array('dob, hos_num, nhs_num, date_of_death', 'safe', 'on' => 'search'),
-//			array('iop_left, iop_right, first_name, last_name, dob, hos_num, nhs_num, primary_phone, date_of_death', 'safe', 'on' => 'search'),
         );
     }
 
@@ -93,6 +86,7 @@ class VirtualClinicPatient extends Patient {
     public function relations() {
         return array(
             'patient' => array(self::BELONGS_TO, 'Patient', 'patient_id'),
+            'clinic_type' => array(self::BELONGS_TO, 'VirtualClinicType', 'clinic_type_id'),
         );
     }
 
@@ -120,10 +114,10 @@ class VirtualClinicPatient extends Patient {
         $criteria = new CDbCriteria;
         $criteria->join = "JOIN contact ON contact.parent_id = t.patient_id AND contact.parent_class='Patient'"
                 . " JOIN patient ON patient.id = t.patient_id";
-
-        $criteria->condition = 'site_id=' . $params['site_id'] . ' and subspeciality_id=' . $params['clinic_id'];
+        $condition = $this->getRealClinicId($params['clinic_id']);
+        $criteria->condition = 'site_id=' . $params['site_id'] . $condition;
         if (is_array($params['sort_by'])) {
-            foreach($params['sort_by'] as $sort) {
+            foreach ($params['sort_by'] as $sort) {
                 $criteria->order = $sort . ' ' . $params['sort_dir'];
             }
         } else {
@@ -153,14 +147,17 @@ class VirtualClinicPatient extends Patient {
         $criteria->join = "JOIN contact ON contact.parent_id = t.patient_id AND contact.parent_class='Patient'"
                 . " JOIN patient ON patient.id = t.patient_id";
         if (is_array($params['sort_by'])) {
-            foreach($params['sort_by'] as $sort) {
+            foreach ($params['sort_by'] as $sort) {
                 $criteria->order = $sort . ' ' . $params['sort_dir'];
             }
         } else {
             $criteria->order = $params['sort_by'] . ' ' . $params['sort_dir'];
         }
         Yii::app()->event->dispatch('patient_search_criteria', array('patient' => $this, 'criteria' => $criteria, 'params' => $params));
-        $criteria->condition = 'site_id=' . $params['site_id'];
+        
+        $condition = $this->getRealClinicId($params['clinic_id']);
+        
+        $criteria->condition = 'site_id=' . $params['site_id'] . $condition;
 
         $dataProvider = new CActiveDataProvider(get_class($this), array(
                     'criteria' => $criteria,
@@ -168,6 +165,33 @@ class VirtualClinicPatient extends Patient {
                 ));
 
         return $dataProvider;
+    }
+
+    /**
+     * The virtual clinic maintains a subspeciality ID and a clinic
+     * type ID. The former is for subspeciality clinics; the latter is
+     * for non-subspeciality clinics. If the
+     * specified ID is within the ID range of all subspecialities, a
+     * subspeciality contion will be returned; else, the offset of the
+     * subspecialities will be subtracted from the ID to form the basis
+     * of the non-subspeciality clinic.
+     * 
+     * This enables the search to base it's criteria either on the
+     * subspeciality ID or the clinic type ID of the clinic table.
+     *  
+     * @param type $clinic_id the clinic ID to base the condition on.
+     * 
+     * @return string a conditional string to add to search criteria.
+     */
+    private function getRealClinicId($clinic_id) {
+
+        $condition = ' and subspeciality_id=' . $clinic_id;
+        $subspecialities = $subspecialities = Subspecialty::model()->findAll();
+        $subspeciality_count = count($subspecialities);
+        if ($clinic_id > $subspeciality_count) {
+            $condition = ' and clinic_type_id=' . ($clinic_id - $subspeciality_count);
+        }
+        return $condition;
     }
 
 }

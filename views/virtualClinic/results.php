@@ -65,11 +65,11 @@ if ($clinic_id > 0 && isset($clinics[$clinic_id])) {
                     foreach ($clinics as $c_id => $clinic_name) {
                         if ($clinic_id != $c_id) {
                             ?>
-                            <option value = "/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site_id ?>/<?php echo $clinic_id ?>/"><?php echo $clinic_name ?></option>
+                            <option value = "/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site_id ?>/<?php echo $c_id ?>/"><?php echo $clinic_name ?></option>
                             <?php
                         } else {
                             ?>
-                            <option value="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site_id ?>/<?php echo $clinic_id ?>/" selected><?php echo $clinic_name ?></option>
+                            <option value="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site_id ?>/<?php echo $c_id ?>/" selected><?php echo $clinic_name ?></option>
                             <?php
                         }
                     }
