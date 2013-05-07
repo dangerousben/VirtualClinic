@@ -196,8 +196,24 @@ if ($clinic_id > 0 && isset($clinics[$clinic_id])) {
             if ($(this).parent().children().index($(this)) > 10) {
                 return true;
             }
+            <?php
+            // need to check of there is an episode for this firm:
+            $criteria = new CDbCriteria;
+            $criteria->condition = 'firm_id=' . $firm_id;
+            $criteria->order = 'id DESC';
+            $criteria->distinct = true;
+            $episode = Episode::model()->find($criteria);
+            if ($episode) {
+                ?>
+                window.location.href = '/patient/episode/<?php echo $episode->id?>'
+                <?php
+            } else {
+            ?>
             //                                    window.location.href = '/patient/viewhosnum/'+$(this).parent().children(":first").html();
-            window.location.href = '/<?php echo $clinics[$clinic_id] ?>VirtualClinic/default/view/'+$(this).parent().children(":first").html();
+            window.location.href = '/<?php echo preg_replace("/[\s\W]/", "", preg_replace("/[^A-Za-z0-9]/", "", $clinics[$clinic_id])) ?>VirtualClinic/default/view/'+$(this).parent().children(":first").html();
+            <?php
+            }
+            ?>
             return false;
         });
     </script>
