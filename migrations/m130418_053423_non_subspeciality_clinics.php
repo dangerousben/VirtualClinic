@@ -1,6 +1,6 @@
 <?php
 
-require 'DbHelper.php';
+require_once 'DbHelper.php';
 
 class m130418_053423_non_subspeciality_clinics extends DbHelper {
     

@@ -1,6 +1,6 @@
 <?php
 
-require 'DbHelper.php';
+require_once 'DbHelper.php';
 
 class m130402_121135_initial_migration extends DbHelper {
 
