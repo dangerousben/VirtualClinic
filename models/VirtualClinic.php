@@ -64,7 +64,7 @@ class VirtualClinic {
         $nonSubspecialityClinics = VirtualClinicType::model()->findAll();
         $offset = count($subspecialities);
         foreach($nonSubspecialityClinics as $clinic) {
-            $clinics[++$offset] = $clinic->name;
+            $clinics[++$offset] = $clinic->display_name;
         }
         return $clinics;
     }
@@ -230,10 +230,24 @@ class VirtualClinic {
      * @param string $speciality the speciality with white space and non-
      * alpha numeric characters removed.
      */
-    private function specialityToCamelCase($speciality) {
+    public function specialityToCamelCase($speciality) {
 
         // we're creating a class name so strip out non-desirable characters:
         return preg_replace("/[\s\W]/", "", preg_replace("/[^A-Za-z0-9]/", "", $speciality));
+    }
+    
+    /**
+     * Gets the full path of the module as a dot-separated package name.
+     * 
+     * @param type $subspeciality the subspeciality of the clinic that defines
+     * the module path and name.
+     * 
+     * @return string the name of the module, in the format
+     * application.modules.[subspeciality]VirtualClinic
+     */
+    public function moduleExists($subspeciality) {
+        return class_exists($this->getModuleName($subspeciality .
+                "." + $this->getClinicName($subspeciality)));
     }
     
     /**

@@ -9,6 +9,7 @@ class m130418_053423_non_subspeciality_clinics extends DbHelper {
     public function safeUp() {
         $this->createTable($this->tablename, array_merge(array(
                     'id' => 'int(10) unsigned NOT NULL AUTO_INCREMENT',
+                    'display_name' => 'varchar(50)',
                     'name' => 'varchar(50)',
                         ), $this->getDefaults($this->tablename, false)), 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin');
         
@@ -22,6 +23,8 @@ class m130418_053423_non_subspeciality_clinics extends DbHelper {
     }
 
     public function safeDown() {
+        $this->dropForeignKey('virtual_clinic_patient_clinic_type_id_fk', 'virtual_clinic_patient');
+        $this->dropIndex('virtual_clinic_patient_clinic_type_id_fk', 'virtual_clinic_patient');
         $this->dropColumn('virtual_clinic_patient', 'clinic_type_id');
         $this->dropTable($this->tablename);
     }

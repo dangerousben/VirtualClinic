@@ -6,6 +6,18 @@ This module defines an extensible clinic for other specialities to utilise.
 It is a lightweight wrapper that uses reflection to class load other
 speciality clinics.
 
+There are two types of clinic:
+
+* Subspeciality clinics. These are based on the subspecialities given
+in the subspeciality table; and
+
+* Non-subspeciality clinics (for example, e-referrals). These clinics do
+not hold to a subspeciality.
+
+Most of the configuration of the two types of clinic are the same, although
+some tweaking is required for non-subspeciality clinics. This is discussed
+below.
+
 To define a virtual clinic, the following steps must be performed:
 
 * First, select which sub-speciality clinic is to be created. Create a folder
@@ -106,14 +118,16 @@ data types (like eye draw fields) might need extra formatting to sit it inside
 the HTML table correctly. If any fields require extra markup, define a method
 named `formatData` in `[SubSpecialityName]VirtualClinicModule.php`:
 
-    public static function formatData($columnName, $data)
+    `public static function formatData($columnName, $data)`
 
 ... where `$columnName` is the name of the column to format and `$data` is
-the actual data to be formatted.
+the actual data to be formatted. The data will be the data passed back for the
+actual column given in the `$columns` definition - so it could be a string
+or mixed (array).
 
-The method should check to see if the column name is the required column
-to be formatted, then format the data with appropriate markup and return
-it. It should return `null` if no formatting is required.
+The `formatData` method should check to see if the column name is the
+required column to be formatted, then format the data with appropriate
+markup and return it. It should return `null` if no formatting is required.
 
 For example, to format data for the `Eye` column so that the text is bold,
 do the following within the `formatData` method:
@@ -122,10 +136,29 @@ do the following within the `formatData` method:
         return "<b>" . $data . "</b>";
     }
 
+Following on from the above column example, let's create a format rule for
+the C/D Ratio column. The column data passes back an array of two values
+in the above `$columns` definition; we're going to format the data
+so that each value appears on a new line, with LE/RE prepended appropriately:
+
+    if ($columnName == 'C/D Ratio' && $data) {
+        if ($data[0] && $data[1]) {
+            return "RE: " . $data[1] . "<br>" . "LE: " . $data[0];
+        }
+    }
+
 As you can see this enables great flexibility with custom formatting for
 each defined column.
 
 Final tasks: don't forget to add the module to the YII config.
+
+Adding Non-Subspeciality Clinics
+================================
+
+The above process enables easy configuration of clinics based on Subspeciality.
+However, non-subspeciality clinics can also easily be created.
+
+To create a non-subspeciality clinic, 
 
 Example Clinic
 ==============
