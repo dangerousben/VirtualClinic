@@ -112,6 +112,8 @@ class VirtualClinicPatient extends Patient {
      */
     public function searchHospitalNumbers($params) {
         $criteria = new CDbCriteria;
+//        $criteria->join = "JOIN virtual_clinic_patient ON virtual_clinic_patient.patient_id = t.patient_id JOIN contact ON contact.parent_id = t.patient_id AND contact.parent_class='Patient'"
+//                . " JOIN patient ON patient.id = t.patient_id";
         $criteria->join = "JOIN contact ON contact.parent_id = t.patient_id AND contact.parent_class='Patient'"
                 . " JOIN patient ON patient.id = t.patient_id";
         $condition = $this->getRealClinicId($params['clinic_id']);
@@ -124,7 +126,11 @@ class VirtualClinicPatient extends Patient {
             $criteria->order = $params['sort_by'] . ' ' . $params['sort_dir'];
         }
         $criteria->order = 'DESC';
-
+$a = $criteria->select;
+$b = $criteria->join;
+$c = $criteria->order;
+$d = $criteria->condition;
+$rr = $this->count($criteria);
         return $this->count($criteria);
     }
 
@@ -166,7 +172,6 @@ class VirtualClinicPatient extends Patient {
 
         return $dataProvider;
     }
-
     /**
      * The virtual clinic maintains a subspeciality ID and a clinic
      * type ID. The former is for subspeciality clinics; the latter is

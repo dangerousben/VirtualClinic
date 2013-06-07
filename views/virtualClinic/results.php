@@ -19,6 +19,30 @@
 ?>
 
 <?php
+//function aasort (&$array, $key) {
+//    $sorter=array();
+//    $ret=array();
+//    reset($array);
+//    foreach ($array as $ii => $va) {
+//        $sorter[$ii]=$va[$key];
+//    }
+//    asort($sorter);
+//    foreach ($sorter as $ii => $va) {
+//        $ret[$ii]=$array[$ii];
+//    }
+//    return $ret;
+//}
+//
+//// sort by date?
+//if ($sort_by == 6) {
+//  $array = aasort($dataProvider->getData(),"visit_date");
+//} else if ($sort_by == 8) { // sort by review
+//  $array = aasort($dataProvider->getData(),"reviewed");
+//}
+//else {
+  $array = $dataProvider->getData();
+//}
+
 $clinic = new VirtualClinic();
 $clinics = $clinic->getClinics();
 $sites = Site::model()->findAll();
@@ -27,216 +51,245 @@ $siteStr = "No site selected";
 $clinicStr = "No clinic selected";
 
 if ($site_id > 0 && isset($sites[$site_id - 1])) {
-    $siteStr = "Site: " . $sites[$site_id - 1]->name;
+  $siteStr = "Site: " . $sites[$site_id - 1]->name;
 }
 if ($clinic_id > 0 && isset($clinics[$clinic_id])) {
-    $clinicStr = "Clinic: " . $clinics[$clinic_id];
+  $clinicStr = "Clinic: " . $clinics[$clinic_id];
 }
 ?>
-<!--<p><strong><?php // echo $siteStr  ?>, <?php // echo $clinicStr  ?></strong>-->
+<!--<p><strong><?php // echo $siteStr   ?>, <?php // echo $clinicStr   ?></strong>-->
 <div class="wrapTwo clearfix">
-    <div >
+  <div >
 
-        <?php
-        if (isset($total_items) && $total_items > 0) {
-            ?>
+    <?php
+    if (isset($total_items) && $total_items > 0) {
+      ?>
 
-            <p><strong>Virtual Clinic</strong>: <?php echo $total_items ?> patients found
-                <br/><br/>Site <select id="urlList" onchange="window.location.href = this.value">
-                    <option value="">- Please select -</option>
-                    <?php
-                    $sites = Site::model()->findAll();
-                    foreach ($sites as $site) {
-                        if ($site->id != $site_id) {
-                            ?>
-                            <option value="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site->id ?>/<?php echo $clinic_id ?>/"><?php echo $site->short_name ?></option>
-                            <?php
-                        } else {
-                            ?>
-                            <option value="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site->id ?>/<?php echo $clinic_id ?>/" selected><?php echo $site->short_name ?></option>
-                            <?php
-                        }
-                    }
-                    ?>
-                </select><br/><br/>
-                Clinic <select id="urlList" onchange="window.location.href = this.value">
-                    <option value="">- Please select -</option>
-                    <?php
-                    foreach ($clinics as $c_id => $clinic_name) {
-                        if ($clinic_id != $c_id) {
-                            ?>
-                            <option value = "/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site_id ?>/<?php echo $c_id ?>/"><?php echo $clinic_name ?></option>
-                            <?php
-                        } else {
-                            ?>
-                            <option value="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site_id ?>/<?php echo $c_id ?>/" selected><?php echo $clinic_name ?></option>
-                            <?php
-                        }
-                    }
-                    ?>
-                </select>
-            </p>
-
-            <?php $this->renderPartial('//base/_messages'); ?>
-
-            <div class="whiteBox">
-                <?php
-                $from = 1 + ($pagen * $items_per_page);
-                $to = ($pagen + 1) * $items_per_page;
-                if ($to > $total_items) {
-                    $to = $total_items;
-                }
-                ?>
-                <h3>Results for <?php echo $clinics[$clinic_id] ?> Clinic, <?php echo $sites[$site_id - 1]->name ?>. You are viewing patients <?php echo $from ?> to <?php echo $to ?>, of <?php echo $total_items ?></h3>
-
-                <div id="patient-grid" class="grid-view">
-                    <table class="items">
-                        <thead>
-                            <tr>
-                                <th style="display: none" id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/0/<?php echo $site_id ?>/<?php echo $clinic_id ?>">CRN</a></th>
-                                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/1/<?php echo $site_id ?>/<?php echo $clinic_id ?>">First Name</a></th>
-                                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/2/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Last Name</a></th>
-                                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/3/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Age</a></th>
-                                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/4/<?php echo $site_id ?>/<?php echo $clinic_id ?>">S/B</a></th>
-                                <!-- speciality-specific column headings: -->
-                                <?php
-                                $cols = $clinic->getColumnNames($clinics[$clinic_id]);
-                                foreach ($cols as $col_index => $column) {
-                                    ?>
-                            <!--                                    <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php // echo $pagen      ?>/<?php // if ($sort_dir == 0) {      ?>1<?php // } else {      ?>0<?php // }      ?>/11/<?php // echo $site_id      ?>/<?php // echo $clinic_id      ?>"><?php // echo $column      ?></a></th>-->
-                                    <th id="patient-grid_c0"><?php echo $column ?></th>
-                                <?php }
-                                ?>
-                                <!-- end of speciality-specific column headings -->
-                                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/5/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Follow Up</a></th>
-                                <th id="patient-grid_c0" width="8%"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/6/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Date</a></th>
-    <!--										<th id="patient-grid_c5">Site</th>-->
-                                <th id="patient-grid_c5" width="3%">5yr Risk</th>
-                                <th id="patient-grid_c5" width="3%">Flag</th>
-                                <th id="patient-grid_c5" width="3%">Reviewed</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            foreach ($dataProvider->getData() as $i => $result) {
-                                ?>
-                                <tr class="<?php if ($i % 2 == 0) { ?>even<?php } else { ?>odd<?php } ?>">
-                                    <td style="display: none; vertical-align:middle"><?php echo $result->patient->id ?></td>
-                                    <td style="vertical-align:middle"><?php echo $result->patient->contact->first_name ?></td>
-                                    <td style="vertical-align:middle"><?php echo $result->patient->contact->last_name ?></td>
-                                    <td style="vertical-align:middle"><?php echo $result->patient->getAge() ?></td>
-                                    <td style="vertical-align:middle">
-                                        <?php
-                                        $firm_id = $result->seen_by_user_id;
-
-                                        $firm = Firm::model()->findByPk($firm_id);
-                                        if (isset($firm) && $firm->name) {
-                                            echo $firm->name;
-                                        }
-                                        ?></td>
-                                    <!-- speciality-specific column values: -->
-                                    <?php
-                                    $cols = $clinic->getColumnNames($clinics[$clinic_id]);
-                                    foreach ($cols as $col_index => $column) {
-                                        $value = $clinic->getColumnValue($result->patient->id, $clinics[$clinic_id], $column);
-                                        ?>
-                                        <td style="vertical-align:middle"><?php echo $clinic->formatTableData($clinics[$clinic_id], $column, $value) ?></td>
-                                    <?php }
-                                    ?>
-                                    <!-- end of speciality-specific column values -->
-
-                                    <td style="vertical-align:middle"><?php echo $result->follow_up ?></td>
-                                    <td style="vertical-align:middle"><?php
-                            if ($result->visit_date) {
-                                $date = new DateTime($result->visit_date);
-                                echo $date->format('Y-m-d');
-                            }
-                                    ?></td>
-                                    <!--td style="vertical-align:middle">ODTC</td-->
-                                    <td style="vertical-align:middle">0%<?php ?></td>
-                                    <td style="vertical-align:middle"><input type="checkbox" name="flag" value="Bike" /></td>
-                                    <td style="vertical-align:middle"><input type="checkbox" name="reviewed" value="Bike" /><?php // echo $result->nhs_num       ?></td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="resultsPagination">
-                    <?php for ($i = 0; $i < $pages; $i++) { ?>
-                        <?php
-                        if ($i == $pagen - 1) {
-                            $to = ($i + 1) * $items_per_page;
-                            if ($to > $total_items) {
-                                $to = $total_items;
-                            }
-                            ?>
-                            <span class="showingPage"><?php echo 1 + ($i * $items_per_page) ?> - <?php echo $to ?></span>
-                        <?php } else { ?>
-                            <?php
-                            $to = ($i + 1) * $items_per_page;
-                            if ($to > $total_items) {
-                                $to = $total_items;
-                            }
-                            ?>
-                            <!--span class="otherPages"><a href="/virtualClinic/results/<?php // echo $first_name      ?>/<?php // echo $last_name      ?>/<?php // echo $nhs_num      ?>/<?php // echo $gender      ?>/<?php // echo $sort_by      ?>/<?php // echo $sort_dir      ?>/<?php // echo $i+1      ?>"><?php // echo 1+($i*$items_per_page)      ?> - <?php // echo $to      ?></a></span-->
-                            <span class="otherPages"><a href="/virtualClinic/results/<?php echo $i + 1 ?>/<?php if ($sort_dir == 0) { ?>0<?php } else { ?>1<?php } ?>/<?php echo $sort_by ?>"><?php echo 1 + ($i * $items_per_page) ?> - <?php echo $to ?></a></span>
-                        <?php } ?>
-                    <?php } ?>
-                </div>
-
-            </div> <!-- .whiteBox -->
-
-        </div>	<!-- .wideColumn -->
-
-    </div><!-- .wrapTwo -->
-    <script type="text/javascript">
-        $('#patient-grid .items tr td').click(function() {
-            // if the cell index is > 10, leave because we want to let users click the check boxes:
-            if ($(this).parent().children().index($(this)) > 10) {
-                return true;
-            }
-            <?php
-            // need to check of there is an episode for this firm:
-            $criteria = new CDbCriteria;
-            $criteria->condition = 'firm_id=' . $firm_id;
-            $criteria->order = 'id DESC';
-            $criteria->distinct = true;
-            $episode = Episode::model()->find($criteria);
-            if ($episode) {
-                ?>
-                window.location.href = '/patient/episode/<?php echo $episode->id?>'
-                <?php
+      <p><strong>Virtual Clinic</strong>: <?php echo $total_items ?> patients found
+        <br/><br/>Site <select id="urlList" onchange="window.location.href = this.value">
+          <option value="">- Please select -</option>
+          <?php
+          $sites = Site::model()->findAll();
+          foreach ($sites as $site) {
+            if ($site->id != $site_id) {
+              ?>
+              <option value="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site->id ?>/<?php echo $clinic_id ?>/"><?php echo $site->short_name ?></option>
+              <?php
             } else {
-            ?>
-            //                                    window.location.href = '/patient/viewhosnum/'+$(this).parent().children(":first").html();
-            window.location.href = '/<?php echo preg_replace("/[\s\W]/", "", preg_replace("/[^A-Za-z0-9]/", "", $clinics[$clinic_id])) ?>VirtualClinic/default/view/'+$(this).parent().children(":first").html();
-            <?php
+              ?>
+              <option value="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site->id ?>/<?php echo $clinic_id ?>/" selected><?php echo $site->short_name ?></option>
+              <?php
             }
-            ?>
-            return false;
-        });
-    </script>
-    <?php
-} else {
-    ?>
-    <p><strong>No patients found; select a clinic.</strong>
-        <select id="urlList" onchange="window.location.href = this.value">
-            <option value="">- Please select -</option>
-            <?php
-            foreach ($sites as $site) {
-                ?>
-                <option value="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site->id ?>/<?php echo $clinic_id ?>/"><?php echo $site->short_name ?></option>
-            <?php } ?>
+          }
+          ?>
+        </select><br/><br/>
+        Clinic <select id="urlList" onchange="window.location.href = this.value">
+          <option value="">- Please select -</option>
+          <?php
+          foreach ($clinics as $c_id => $clinic_name) {
+            if ($clinic_id != $c_id) {
+              ?>
+              <option value = "/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site_id ?>/<?php echo $c_id ?>/"><?php echo $clinic_name ?></option>
+              <?php
+            } else {
+              ?>
+              <option value="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site_id ?>/<?php echo $c_id ?>/" selected><?php echo $clinic_name ?></option>
+              <?php
+            }
+          }
+          ?>
         </select>
-        <select id="urlList" onchange="window.location.href = this.value">
-            <option value="">- Please select -</option>
-            <?php
-            foreach ($clinics as $clinic_id => $clinic_name) {
+      </p>
+
+      <?php $this->renderPartial('//base/_messages'); ?>
+
+      <div class="whiteBox">
+        <?php
+        $from = (($pagen -1) * $items_per_page) + 1;
+        $to = ($pagen) * $items_per_page;
+        if ($to > $total_items) {
+          $to = $total_items;
+        }
+        ?>
+        <h3>Results for <?php echo $clinics[$clinic_id] ?> Clinic, <?php echo $sites[$site_id - 1]->name ?>. You are viewing patients <?php echo $from ?> to <?php echo $to ?>, of <?php echo $total_items ?></h3>
+
+        <div id="patient-grid" class="grid-view">
+          <table class="items">
+            <thead>
+              <tr>
+                <th style="display: none" id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/0/<?php echo $site_id ?>/<?php echo $clinic_id ?>">CRN</a></th>
+                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/1/<?php echo $site_id ?>/<?php echo $clinic_id ?>">First Name</a></th>
+                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/2/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Last Name</a></th>
+                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/3/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Age</a></th>
+                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/4/<?php echo $site_id ?>/<?php echo $clinic_id ?>">S/B</a></th>
+                <!-- speciality-specific column headings: -->
+                <?php
+                $cols = $clinic->getColumnNames($clinics[$clinic_id]);
+                foreach ($cols as $col_index => $column) {
+                  ?>
+              <!--                                    <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php // echo $pagen       ?>/<?php // if ($sort_dir == 0) {       ?>1<?php // } else {       ?>0<?php // }       ?>/11/<?php // echo $site_id       ?>/<?php // echo $clinic_id       ?>"><?php // echo $column       ?></a></th>-->
+                  <th id="patient-grid_c0"><?php echo $column ?></th>
+                <?php }
                 ?>
-                <option value="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site_id ?>/<?php echo $clinic_id ?>/"><?php echo $clinic_name ?></option>
+                <!-- end of speciality-specific column headings -->
+                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/5/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Follow Up</a></th>
+                <th id="patient-grid_c0" width="8%"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/6/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Date</a></th>
+  <!--										<th id="patient-grid_c5">Site</th>-->
+                <th id="patient-grid_c5" width="3%">5yr Risk</th>
+                <th id="patient-grid_c5" width="3%"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/7/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Flag</a></th>
+                <th id="patient-grid_c5" width="3%"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/8/<?php echo $site_id ?>/<?php echo $clinic_id ?>">Reviewed</a></th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php
+              foreach ($array as $i => $result) {
+                ?>
+                <tr class="<?php if ($i % 2 == 0) { ?>even<?php } else { ?>odd<?php } ?>">
+                  <?php
+                  // need to check of there is an episode for this firm:
+
+                  $firm_id = $result->seen_by_user_id;
+                  $criteria = new CDbCriteria;
+                  $criteria->condition = 'firm_id=' . $firm_id . ' and patient_id=' . $result->patient->id;
+                  $criteria->order = 'id DESC';
+                  $criteria->distinct = true;
+                  $episode = Episode::model()->find($criteria);
+                  if ($episode != null) {
+                    ?>
+                    <td style="display: none; vertical-align:middle"><?php echo $episode->id ?></td>
+                    <td style="display: none; vertical-align:middle"><?php echo $result->patient->id ?></td>
+                    <?php
+                  }
+                  ?>
+                  <td style="vertical-align:middle"><?php echo $result->patient->contact->first_name ?></td>
+                  <td style="vertical-align:middle"><?php echo $result->patient->contact->last_name ?></td>
+                  <td style="vertical-align:middle"><?php echo $result->patient->getAge() ?></td>
+                  <td style="vertical-align:middle">
+                    <?php
+                    $firm = Firm::model()->findByPk($firm_id);
+                    if (isset($firm) && $firm->name) {
+                      echo $firm->name;
+                    }
+                    ?></td>
+                  <!-- speciality-specific column values: -->
+                  <?php
+                  $cols = $clinic->getColumnNames($clinics[$clinic_id]);
+                  foreach ($cols as $col_index => $column) {
+                    $value = $clinic->getColumnValue($result->patient->id, $clinics[$clinic_id], $column);
+                    ?>
+                    <td style="vertical-align:middle"><?php echo $clinic->formatTableData($clinics[$clinic_id], $column, $value) ?></td>
+                  <?php }
+                  ?>
+                  <!-- end of speciality-specific column values -->
+
+                  <td style="vertical-align:middle"><?php echo $result->follow_up ?></td>
+                  <td style="vertical-align:middle"><?php
+              if ($result->visit_date) {
+                $date = new DateTime($result->visit_date);
+                echo $date->format('Y-m-d');
+              }
+                  ?></td>
+                  <!--td style="vertical-align:middle">ODTC</td-->
+                  <td style="vertical-align:middle">0%<?php ?></td>
+                  <td style="vertical-align:middle"><input id="checkbox_flagged" type="checkbox" name="flagged"
+                                                           <?php 
+                                                           $reviewed = '';
+                                                           $x = $result->patient->hos_num;
+                                                           if ($result->flag) {
+                                                             $reviewed = 'checked';
+                                                           }
+                                                           echo $reviewed ?>
+                                                           value="flagged" onclick="var selected=$(this).is(':checked'); var pid=$(this).parent().parent().children(':nth-child(2)').html(); $.post('/virtualClinic/flag/' + pid + '/' + selected, {id: pid, selected: selected});" /><?php // echo $result->nhs_num        ?></td>
+                  <td style="vertical-align:middle"><input id="checkbox_reviewed" type="checkbox" name="reviewed"
+                                                           <?php 
+                                                           $reviewed = '';
+                                                           $x = $result->patient->hos_num;
+                                                           if ($result->reviewed) {
+                                                             $reviewed = 'checked';
+                                                           }
+                                                           echo $reviewed ?>
+                                                           value="reviewed" onclick="var selected=$(this).is(':checked'); var pid=$(this).parent().parent().children(':nth-child(2)').html(); $.post('/virtualClinic/review/' + pid + '/' + selected, {id: pid, selected: selected});" /><?php // echo $result->nhs_num        ?></td>
+                </tr>
+              <?php } ?>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="resultsPagination">
+          <?php for ($i = 0; $i < $pages; $i++) { ?>
+            <?php
+            if ($i == $pagen - 1) {
+              $to = ($i + 1) * $items_per_page;
+              if ($to > $total_items) {
+                $to = $total_items;
+              }
+              ?>
+              <span class="showingPage"><?php echo 1 + ($i * $items_per_page) ?> - <?php echo $to ?></span>
+            <?php } else { ?>
+              <?php
+              $to = ($i + 1) * $items_per_page;
+              if ($to > $total_items) {
+                $to = $total_items;
+              }
+              ?>
+              <!--span class="otherPages"><a href="/virtualClinic/results/<?php // echo $first_name      ?>/<?php // echo $last_name      ?>/<?php // echo $nhs_num      ?>/<?php // echo $gender      ?>/<?php // echo $sort_by      ?>/<?php // echo $sort_dir      ?>/<?php // echo $i+1      ?>"><?php // echo 1+($i*$items_per_page)      ?> - <?php // echo $to      ?></a></span-->
+              <span class="otherPages"><a href="/virtualClinic/results/<?php echo $i + 1 ?>/<?php if ($sort_dir == 0) { ?>0<?php } else { ?>1<?php } ?>/<?php echo $sort_by ?>/<?php echo $site_id?>/<?php echo $clinic_id?>"><?php echo 1 + ($i * $items_per_page) ?> - <?php echo $to ?></a></span>
             <?php } ?>
-        </select></p>
+          <?php } ?>
+        </div>
+
+      </div> <!-- .whiteBox -->
+
+    </div>	<!-- .wideColumn -->
+
+  </div><!-- .wrapTwo -->
+  <script type="text/javascript">
+    $('#patient-grid .items tr td').click(function() {
+      // if the cell index is > 10, leave because we want to let users click the check boxes:
+      if ($(this).parent().children().index($(this)) > 10) {
+        return true;
+      }
+  <?php
+  // need to check of there is an episode for this firm:
+  $criteria = new CDbCriteria;
+  $criteria->condition = 'firm_id=' . $firm_id;
+  $criteria->order = 'id DESC';
+  $criteria->distinct = true;
+  $episode = Episode::model()->find($criteria);
+  if ($episode) {
+    ?>
+                    window.location.href = '/patient/episode/' + $(this).parent().children(":first").html();
     <?php
+  } else {
+    ?>
+                //                                    window.location.href = '/patient/viewhosnum/'+$(this).parent().children(":first").html();
+                window.location.href = '/<?php echo preg_replace("/[\s\W]/", "", preg_replace("/[^A-Za-z0-9]/", "", $clinics[$clinic_id])) ?>VirtualClinic/default/view/'+$(this).parent().children(":first").html();
+    <?php
+  }
+  ?>
+              return false;
+            });
+  </script>
+  <?php
+} else {
+  ?>
+  <p><strong>No patients found; select a clinic.</strong>
+    <select id="urlList" onchange="window.location.href = this.value">
+      <option value="">- Please select -</option>
+      <?php
+      foreach ($sites as $site) {
+        ?>
+        <option value="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site->id ?>/<?php echo $clinic_id ?>/"><?php echo $site->short_name ?></option>
+      <?php } ?>
+    </select>
+    <select id="urlList" onchange="window.location.href = this.value">
+      <option value="">- Please select -</option>
+      <?php
+      foreach ($clinics as $clinic_id => $clinic_name) {
+        ?>
+        <option value="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/<?php echo $sort_by ?>/<?php echo $site_id ?>/<?php echo $clinic_id ?>/"><?php echo $clinic_name ?></option>
+      <?php } ?>
+    </select></p>
+  <?php
 }
 ?>
