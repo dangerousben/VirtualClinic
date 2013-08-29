@@ -57,6 +57,8 @@ if ($clinic_id > 0 && isset($clinics[$clinic_id])) {
   $clinicStr = "Clinic: " . $clinics[$clinic_id];
 }
 ?>
+<input type="hidden" value="<?php echo $site_id ?>" id='site_id' >
+<input type="hidden" value="<?php echo $clinic_id ?>" id='clinic_id' >
 <!--<p><strong><?php // echo $siteStr   ?>, <?php // echo $clinicStr   ?></strong>-->
 <div class="wrapTwo clearfix">
   <div >
@@ -208,7 +210,7 @@ if ($clinic_id > 0 && isset($clinics[$clinic_id])) {
                                                              $reviewed = 'checked';
                                                            }
                                                            echo $reviewed ?>
-                                                           value="reviewed" onclick="var selected=$(this).is(':checked'); var pid=$(this).parent().parent().children(':nth-child(2)').html(); $.post('/virtualClinic/review/' + pid + '/' + selected, {id: pid, selected: selected});" /><?php // echo $result->nhs_num        ?></td>
+                                                           value="reviewed" onclick="var clinic_id = $('#clinic_id').val(); var site_id = $('#site_id').val(); var selected=$(this).is(':checked'); var pid=$(this).parent().parent().children(':nth-child(2)').html(); $.post('/virtualClinic/review/' + pid + '/' + selected + '/' + clinic_id + '/' + site_id, {id: pid, selected: selected, clinic_id: clinic_id, site_id: site_id}); location.reload();" /><?php // echo $result->nhs_num        ?></td>
                 </tr>
               <?php } ?>
             </tbody>

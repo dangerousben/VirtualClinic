@@ -178,11 +178,23 @@ class VirtualClinicController extends BaseController {
     if (isset($_GET['id'])) {
       $id = $_GET['id'];
     }
+    if (isset($_GET['clinic_id'])) {
+      $clinic_id = $_GET['clinic_id'];;
+    }
+    if (isset($_GET['site_id'])) {
+      $site_id = $_GET['site_id'];
+    }
+     
     if (isset($_GET['selected'])) {
       $checked = $_GET['selected'];
     }
     if ($checked == 'true') {
       $this->updateClinic($id, array('reviewed' => '1'));
+      $clinic_patient=  VirtualClinicPatient::model()->find('patient_id=:id and subspeciality_id=:clinic_id and site_id=:site_id',
+              array(':id'=>$id, ':clinic_id'=>$clinic_id,  ':site_id'=>$site_id) );
+      if ($clinic_patient) {
+        $clinic_patient->delete();
+      }
     } else {
       $this->updateClinic($id, array('reviewed' => '0'));
     }
