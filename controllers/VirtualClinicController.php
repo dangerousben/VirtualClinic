@@ -22,11 +22,6 @@ class VirtualClinicController extends BaseController {
   public $layout = '//layouts/column2';
   public $patient;
   public $service;
-  public $firm;
-  public $editing;
-  public $event;
-  public $event_type;
-  public $title;
 
   public function filters() {
     return array('accessControl');
@@ -53,38 +48,6 @@ class VirtualClinicController extends BaseController {
   }
 
   /**
-   * Updates the virtual clinic module for the specified patient.
-   * 
-   * @param int $patient_id the patient's id that will be updated.
-   * 
-   * @param array $data mixed data of the form key => value where
-   * key is the column to update and data is the value of the column
-   * to update.
-   */
-  public static function updateClinic($patient_id, $data) {
-
-    $sql = "select patient_id from virtual_clinic_patient"
-            . " where patient_id='" . $patient_id . "'";
-    $res = Yii::app()->db->createCommand($sql)->query();
-    if (!$res->count()) {
-      // we've never added this patient to the clinic before, so add them
-      $sql = "insert into virtual_clinic_patient"
-              . " (patient_id) values (:patient_id)";
-      $command = Yii::app()->db->createCommand($sql);
-      $command->bindParam("patient_id", $patient_id);
-      $command->execute();
-    }
-    foreach ($data as $key => $value) {
-      $sql = "update virtual_clinic_patient"
-              . " set " . $key . "=:" . $key . " where patient_id="
-              . $patient_id;
-      $command = Yii::app()->db->createCommand($sql);
-      $command->bindParam($key, $value);
-      $command->execute();
-    }
-  }
-
-  /**
    * 
    * @param type $page
    */
@@ -98,6 +61,7 @@ class VirtualClinicController extends BaseController {
     $sort_dir = isset($_GET['sort_dir']) ? $_GET['sort_dir'] : '0';
     $sort_by = isset($_GET['sort_by']) ? $_GET['sort_by'] : '0';
     $clinic_id = isset($_GET['clinic_id']) ? $_GET['clinic_id'] : '0';
+    $reviewed = isset($_GET['reviewed']) ? $_GET['reviewed'] : '0';
     $sort = ($sort_dir == 0) ? 'asc' : 'desc';
     switch ($sort_by) {
       case 0:
@@ -136,7 +100,8 @@ class VirtualClinicController extends BaseController {
         'sort_by' => $sort_by,
         'sort_dir' => $sort,
         'site_id' => $site_id,
-        'clinic_id' => $clinic_id,
+        'virtual_clinic_id' => $clinic_id,
+        'reviewed' => $reviewed,
             ));
 
     $nr = $model->searchHospitalNumbers(array(
@@ -145,7 +110,8 @@ class VirtualClinicController extends BaseController {
         'sort_by' => $sort_by,
         'sort_dir' => $sort,
         'site_id' => $site_id,
-        'clinic_id' => $clinic_id,));
+        'virtual_clinic_id' => $clinic_id,
+        'reviewed' => $reviewed,));
 
     $pages = ceil($nr / $pageSize);
     $content = $this->render('results', array(
@@ -157,9 +123,9 @@ class VirtualClinicController extends BaseController {
         'sort_by' => isset($_GET['sort_by']) ? $_GET['sort_by'] : 0,
         'sort_dir' => $sort_dir,
         'site_id' => $site_id,
-        'clinic_id' => $clinic_id,
+        'virtual_clinic_id' => $clinic_id,
+        'reviewed' => $reviewed,
             ));
-//        }
   }
 
   /**
@@ -174,6 +140,16 @@ class VirtualClinicController extends BaseController {
     return $model;
   }
   
+  /**
+   * Attempts to mark a patient as reviewed, based on the patient's ID,
+   * clinic and site ID. If no clinic and matching site entry exists for the 
+   * review is not carried out. That is, only patients with a matching
+   * ID, site and clinic entry are reviewed.
+   * 
+   * Requires request parameters 'id' for the patient's ID, 'selected' as
+   * true/false for the review value, 'clinic_id' for the clinic and 
+   * 'site_id' for the clinic site to update.
+   */
   public function actionReview() {
     if (isset($_GET['id'])) {
       $id = $_GET['id'];
@@ -184,34 +160,77 @@ class VirtualClinicController extends BaseController {
     if (isset($_GET['site_id'])) {
       $site_id = $_GET['site_id'];
     }
+    if (isset($_GET['subspeciality_id'])) {
+      $subspeciality_id = $_GET['subspeciality_id'];
+    }
      
     if (isset($_GET['selected'])) {
       $checked = $_GET['selected'];
     }
     if ($checked == 'true') {
-      $this->updateClinic($id, array('reviewed' => '1'));
-      $clinic_patient=  VirtualClinicPatient::model()->find('patient_id=:id and subspeciality_id=:clinic_id and site_id=:site_id',
-              array(':id'=>$id, ':clinic_id'=>$clinic_id,  ':site_id'=>$site_id) );
-      if ($clinic_patient) {
-        $clinic_patient->delete();
-      }
+      
+      Yii::app()->event->dispatch('virtual_clinic_review', array(
+          'patient_id' => $id,
+          'subspeciality_id' => $subspeciality_id,
+          'virtual_clinic_id' => $clinic_id,
+          'site_id' => $site_id,
+          'reviewed' => 1,
+              ));
     } else {
-      $this->updateClinic($id, array('reviewed' => '0'));
+      // TODO this is not used yet - once a patient is reviewed, they
+      // essentially disappear from the clinic. In fact, they are still
+      // part of the clinic list, but clinics only display patients that
+      // have not been reviewed. One reason to keep this would be to have
+      // a page that shows reviewed patients per-clinic, enabling users
+      // to send users back to the same clinic (although this can be done via
+      // updateClinic($patient_id, $data))
+      Yii::app()->event->dispatch('virtual_clinic_review', array(
+          'patient_id' => $id,
+          'reviewed' => 0,
+              ));
     }
   }
   
+  /**
+   * Flags a patient, marking them as priority.
+   * 
+   * Set request parameters 'id' for the patient's ID and 'selected' as
+   * true/false for the flag value.
+   */
   public function actionFlag() {
     if (isset($_GET['id'])) {
       $id = $_GET['id'];
     }
+    if (isset($_GET['clinic_id'])) {
+      $clinic_id = $_GET['clinic_id'];;
+    }
+    if (isset($_GET['site_id'])) {
+      $site_id = $_GET['site_id'];
+    }
     if (isset($_GET['selected'])) {
       $checked = $_GET['selected'];
     }
-    if ($checked == 'true') {
-      $this->updateClinic($id, array('flag' => '1'));
-    } else {
-      $this->updateClinic($id, array('flag' => '0'));
+    if (isset($_GET['subspeciality_id'])) {
+      $subspecialty_id = $_GET['subspeciality_id'];
     }
+    if ($checked == 'true') {
+      Yii::app()->event->dispatch('virtual_clinic_flag', array(
+          'patient_id' => $id,
+          'subspeciality_id' => $subspecialty_id,
+          'virtual_clinic_id' => $clinic_id,
+          'site_id' => $site_id,
+          'flag' => 1,
+          ));
+    } else {
+      Yii::app()->event->dispatch('virtual_clinic_flag', array(
+          'patient_id' => $id,
+          'subspeciality_id' => $subspecialty_id,
+          'virtual_clinic_id' => $clinic_id,
+          'site_id' => $site_id,
+          'flag' => 0,
+          ));
+    }
+    
   }
 
 }

@@ -86,7 +86,10 @@ class VirtualClinicPatient extends Patient {
     public function relations() {
         return array(
             'patient' => array(self::BELONGS_TO, 'Patient', 'patient_id'),
-            'clinic_type' => array(self::BELONGS_TO, 'VirtualClinicType', 'clinic_type_id'),
+            'virtual_clinic' => array(self::BELONGS_TO, 'VirtualClinic', 'virtual_clinic_id'),
+            'firm' => array(self::BELONGS_TO, 'Firm', 'firm_id'),
+            'subspecialty' => array(self::BELONGS_TO, 'Subspecialty', 'subspeciality_id'),
+//            'clinic_type' => array(self::BELONGS_TO, 'VirtualClinicType', 'clinic_type_id'),
         );
     }
 
@@ -116,8 +119,10 @@ class VirtualClinicPatient extends Patient {
 //                . " JOIN patient ON patient.id = t.patient_id";
         $criteria->join = "JOIN contact ON contact.parent_id = t.patient_id AND contact.parent_class='Patient'"
                 . " JOIN patient ON patient.id = t.patient_id";
-        $condition = $this->getRealClinicId($params['clinic_id']);
+        $condition = $this->getRealClinicId($params['virtual_clinic_id']);
         $criteria->condition = 'site_id=' . $params['site_id'] . $condition;
+        $criteria->condition .= ' and reviewed=' . $params['reviewed'];
+        $x = $criteria->condition;
         if (is_array($params['sort_by'])) {
             foreach ($params['sort_by'] as $sort) {
                 $criteria->order = $sort . ' ' . $params['sort_dir'];
@@ -126,11 +131,6 @@ class VirtualClinicPatient extends Patient {
             $criteria->order = $params['sort_by'] . ' ' . $params['sort_dir'];
         }
         $criteria->order = 'DESC';
-$a = $criteria->select;
-$b = $criteria->join;
-$c = $criteria->order;
-$d = $criteria->condition;
-$rr = $this->count($criteria);
         return $this->count($criteria);
     }
 
@@ -161,9 +161,10 @@ $rr = $this->count($criteria);
         }
         Yii::app()->event->dispatch('patient_search_criteria', array('patient' => $this, 'criteria' => $criteria, 'params' => $params));
         
-        $condition = $this->getRealClinicId($params['clinic_id']);
+        $condition = $this->getRealClinicId($params['virtual_clinic_id']);
         
         $criteria->condition = 'site_id=' . $params['site_id'] . $condition;
+        $criteria->condition .= ' and reviewed=' . $params['reviewed'];
 
         $dataProvider = new CActiveDataProvider(get_class($this), array(
                     'criteria' => $criteria,

@@ -13,5 +13,4 @@ class VirtualClinicModule extends BaseEventTypeModule {
 
     parent::init();
   }
-
 }
