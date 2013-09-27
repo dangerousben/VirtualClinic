@@ -38,15 +38,7 @@ class VirtualClinicController extends BaseController {
         ),
     );
   }
-
-  /**
-   * Lists all models.
-   */
-  public function actionIndex() {
-    $this->render('index', array(
-    ));
-  }
-
+  
   /**
    * 
    * @param type $page

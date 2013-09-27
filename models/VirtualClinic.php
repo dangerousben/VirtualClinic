@@ -22,98 +22,6 @@
 class VirtualClinic extends CActiveRecord {
 
   /**
-   * TODO move to config when migrating to 1.4
-   * @var type 
-   */
-  public $clinics = array('Glaucoma', 'Cataract', 'Accident & Emergency');
-
-  /**
-   * 
-   * The columns declaration must contain an array of
-   * clinic_name => array(column_definitions), where clinic_name matches
-   * one of the defined clinics from the clinic list.
-   * 
-   * Format of the columns is an array of coumn names (as the key)
-   * against an array of contruction data for the clinic data. The idea is
-   * that each column contains at least one piece of information, possibly
-   * more (like for readings that have two values, one for L/E and R/E).
-   * 
-   * Each column is defined by obtaining data from one event type (although
-   * different columns can have different event types); one class name
-   * for that event type; and a field, which is either a string representing
-   * a property on the object, or an array defining a nested object
-   * hierarchy (for one value of a property), or an array of arrays
-   * containing nested object properties, used when several properties
-   * are required for a column.
-   * 
-   * For example, to obtain a property directly from a class object, use
-   * the format:
-   * 
-   * 'History' => array(
-   *       'event_type' => 'OphCiExamination',
-   *       'class_name' => 'Element_OphCiExamination_History',
-   *       'field' => 'description')
-   * 
-   * For a nested property, use the format:
-   * 
-   * 'IOP' => array(
-   *       'event_type' => 'OphCiExamination',
-   *       'class_name' => 'Element_OphCiExamination_IntraocularPressure',
-   *       'field' => array('left_reading', 'value'))
-   * 
-   * Taking this further we can create an array of properties for two
-   * readings for the IOP element:
-   * 
-   * 'IOP' => array(
-   *       'event_type' => 'OphCiExamination',
-   *       'class_name' => 'Element_OphCiExamination_IntraocularPressure',
-   *       'field' => array(array('left_reading', 'value'),
-   *                        array('right_reading', 'value'))
-   * 
-   * Note that when returning multiple values for a single column entry,
-   * implementing clinics can add their own [clinic_name]Clinic.php to
-   * models/ and override @link #formatTableData(clinicName, columnName, mixed)
-   * 
-   * @var array 
-   */
-  // TODO this needs to move to 1.4 'config'
-  public $columns = array(
-      'Glaucoma' => array(
-          'IOP' => array(
-              'event_type' => 'OphCiExamination',
-              'class_name' => 'Element_OphCiExamination_IntraocularPressure',
-              'field' => array(array('left_reading', 'value'), array('right_reading', 'value'))),
-          'CCT' => array(
-              'event_type' => 'OphCiExamination',
-              'class_name' => 'Element_OphCiExamination_CentralCornealThickness',
-              'field' => array(array('left_cct'), array('right_cct'))),
-          'Comments' => array(
-              'event_type' => 'OphCiExamination',
-              'class_name' => 'Element_OphCiExamination_GlaucomaManagement',
-              'field' => 'comments'),
-          'Medications' => array(
-              'event_type' => 'OphCiExamination',
-              'class_name' => 'Element_OphCiExamination_GlaucomaManagement',
-              'field' => array(array('med_1_right', 'shortname'),
-                  array('med_2_right', 'shortname'),
-                  array('med_3_right', 'shortname'),
-                  array('med_1_left', 'shortname'),
-                  array('med_2_left', 'shortname'),
-                  array('med_3_left', 'shortname')))),
-      'Cataract' => array(
-          'History' => array(
-              'event_type' => 'OphCiExamination',
-              'class_name' => 'Element_OphCiExamination_History',
-              'field' => 'description'),
-      ),
-      'Accident & Emergency' => array(
-          'History' => array(
-              'event_type' => 'OphCiExamination',
-              'class_name' => 'Element_OphCiExamination_History',
-              'field' => 'description'),)
-  );
-
-  /**
    * Returns the static model of the specified AR class.
    * @param string $className active record class name.
    * @return VirtualClinic the static model class
@@ -214,7 +122,7 @@ class VirtualClinic extends CActiveRecord {
    */
   public function getClinics() {
     $clinics = array();
-    foreach ($this->clinics as $clinic) {
+    foreach (Yii::app()->params['virtualClinic.clinics'] as $clinic) {
       try {
         $vc = VirtualClinic::model()->find('name=\'' . $clinic . '\'');
         if ($vc) {
@@ -239,7 +147,7 @@ class VirtualClinic extends CActiveRecord {
    * clinics exist.
    */
   public function getColumnNames($subspeciality) {
-    return array_keys($this->columns[$subspeciality->name]);
+    return array_keys(Yii::app()->params['virtualClinic.columns'][$subspeciality->name]);
   }
 
   /**
@@ -257,7 +165,7 @@ class VirtualClinic extends CActiveRecord {
    */
   public function getColumnValue($pid, $subspeciality, $columnName) {
     return $this->getColumnValues($pid,
-            $this->columns[$subspeciality->name][$columnName]);
+            Yii::app()->params['virtualClinic.columns'][$subspeciality->name][$columnName]);
   }
 
   /**
@@ -303,7 +211,7 @@ class VirtualClinic extends CActiveRecord {
         }
       }
     } catch (Exception $e) {
-      echo 'Arse!';
+      
     }
     if (!isset($value)) {
       // no formatting provided; if there are multiple elements,

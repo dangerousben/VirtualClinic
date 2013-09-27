@@ -117,11 +117,13 @@ class VirtualClinicPatient extends Patient {
         $criteria = new CDbCriteria;
 //        $criteria->join = "JOIN virtual_clinic_patient ON virtual_clinic_patient.patient_id = t.patient_id JOIN contact ON contact.parent_id = t.patient_id AND contact.parent_class='Patient'"
 //                . " JOIN patient ON patient.id = t.patient_id";
-        $criteria->join = "JOIN contact ON contact.parent_id = t.patient_id AND contact.parent_class='Patient'"
+        $criteria->join = "JOIN virtual_clinic_patient ON virtual_clinic_patient.patient_id = t.patient_id"
                 . " JOIN patient ON patient.id = t.patient_id";
+//        $criteria->join = "JOIN contact ON contact.parent_id = t.patient_id AND contact.parent_class='Patient'"
+//                . " JOIN patient ON patient.id = t.patient_id";
         $condition = $this->getRealClinicId($params['virtual_clinic_id']);
-        $criteria->condition = 'site_id=' . $params['site_id'] . $condition;
-        $criteria->condition .= ' and reviewed=' . $params['reviewed'];
+        $criteria->condition = 'virtual_clinic_patient.site_id=' . $params['site_id'] . $condition;
+        $criteria->condition .= ' and virtual_clinic_patient.reviewed=' . $params['reviewed'];
         $x = $criteria->condition;
         if (is_array($params['sort_by'])) {
             foreach ($params['sort_by'] as $sort) {
@@ -150,8 +152,9 @@ class VirtualClinicPatient extends Patient {
         }
 
         $criteria = new CDbCriteria;
-        $criteria->join = "JOIN contact ON contact.parent_id = t.patient_id AND contact.parent_class='Patient'"
-                . " JOIN patient ON patient.id = t.patient_id";
+        $criteria->join = 
+//                "JOIN contact ON contact.parent_id = t.patient_id"
+                " JOIN patient ON patient.id = t.patient_id";
         if (is_array($params['sort_by'])) {
             foreach ($params['sort_by'] as $sort) {
                 $criteria->order = $sort . ' ' . $params['sort_dir'];
@@ -161,7 +164,7 @@ class VirtualClinicPatient extends Patient {
         }
         Yii::app()->event->dispatch('patient_search_criteria', array('patient' => $this, 'criteria' => $criteria, 'params' => $params));
         
-        $condition = $this->getRealClinicId($params['virtual_clinic_id']);
+        $condition = '';//$this->getRealClinicId($params['virtual_clinic_id']);
         
         $criteria->condition = 'site_id=' . $params['site_id'] . $condition;
         $criteria->condition .= ' and reviewed=' . $params['reviewed'];
@@ -191,12 +194,12 @@ class VirtualClinicPatient extends Patient {
      */
     private function getRealClinicId($clinic_id) {
 
-        $condition = ' and subspeciality_id=' . $clinic_id;
-        $subspecialities = $subspecialities = Subspecialty::model()->findAll();
-        $subspeciality_count = count($subspecialities);
-        if ($clinic_id > $subspeciality_count) {
-            $condition = ' and clinic_type_id=' . ($clinic_id - $subspeciality_count);
-        }
+        $condition = ' and virtual_clinic_patient.subspeciality_id=' . $clinic_id;
+//        $subspecialities = $subspecialities = Subspecialty::model()->findAll();
+//        $subspeciality_count = count($subspecialities);
+//        if ($clinic_id > $subspeciality_count) {
+//            $condition = ' and clinic_type_id=' . ($clinic_id - $subspeciality_count);
+//        }
         return $condition;
     }
 

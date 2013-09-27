@@ -56,6 +56,7 @@ if ($site_id > 0 && isset($sites[$site_id - 1])) {
 if ($virtual_clinic_id > 0 && isset($clinics[$virtual_clinic_id])) {
   $clinicStr = "Clinic: " . $clinics[$virtual_clinic_id]->name;
 }
+echo CHtml::hiddenField('YII_CSRF_TOKEN',Yii::app()->request->csrfToken);
 ?>
 <input type="hidden" value="<?php echo $site_id ?>" id='site_id' >
 <input type="hidden" value="<?php echo $clinics[$virtual_clinic_id]->subspecialty_id ?>" id='subspeciality_id' >
@@ -206,7 +207,14 @@ if ($virtual_clinic_id > 0 && isset($clinics[$virtual_clinic_id])) {
                                                              $flagged = 'checked';
                                                            }
                                                            echo $flagged ?>
-                                                           value="flagged" onclick="var subspeciality_id = $('#subspeciality_id').val(); var clinic_id = $('#clinic_id').val(); var site_id = $('#site_id').val(); var selected=$(this).is(':checked'); var pid=$(this).parent().parent().children(':nth-child(2)').html(); $.post('/virtualClinic/flag/' + pid + '/' + selected + '/' + clinic_id + '/' + site_id + '/' + subspeciality_id, {id: pid, selected: selected, clinic_id: clinic_id, site_id: site_id, subspeciality_id: subspeciality_id});" /><?php // echo $result->nhs_num        ?></td>
+                                                           value="flagged" onclick="var subspeciality_id = $('#subspeciality_id').val();
+                                                             var clinic_id = $('#clinic_id').val();
+                                                             var site_id = $('#site_id').val();
+                                                             var selected=$(this).is(':checked');
+                                                             var csrf = $('#YII_CSRF_TOKEN').val();
+                                                             var pid=$(this).parent().parent().children(':nth-child(2)').html();
+                                                             $.post('/virtualClinic/flag/'+ pid + '/' + selected + '/' + clinic_id + '/' + site_id + '/' + subspeciality_id, {'YII_CSRF_TOKEN':csrf});" /><?php // echo $result->nhs_num        ?></td>
+                                                             
                   <td style="vertical-align:middle"><input id="checkbox_reviewed" type="checkbox" name="reviewed"
                                                            <?php 
                                                            $reviewed = '';
@@ -215,7 +223,13 @@ if ($virtual_clinic_id > 0 && isset($clinics[$virtual_clinic_id])) {
                                                              $reviewed = 'checked';
                                                            }
                                                            echo $reviewed ?>
-                                                           value="reviewed" onclick="var subspeciality_id = $('#subspeciality_id').val(); var clinic_id = $('#clinic_id').val(); var site_id = $('#site_id').val(); var selected=$(this).is(':checked'); var pid=$(this).parent().parent().children(':nth-child(2)').html(); $.post('/virtualClinic/review/' + pid + '/' + selected + '/' + clinic_id + '/' + site_id + '/' + subspeciality_id, {id: pid, selected: selected, clinic_id: clinic_id, site_id: site_id, subspeciality_id: subspeciality_id}); location.reload();" /><?php // echo $result->nhs_num        ?></td>
+                                                           value="reviewed" onclick="var subspeciality_id = $('#subspeciality_id').val();
+                                                             var clinic_id = $('#clinic_id').val();
+                                                             var site_id = $('#site_id').val();
+                                                             var selected=$(this).is(':checked');
+                                                             var csrf = $('#YII_CSRF_TOKEN').val();
+                                                             var pid=$(this).parent().parent().children(':nth-child(2)').html();
+                                                             $.post('/virtualClinic/review/'+ pid + '/' + selected + '/' + clinic_id + '/' + site_id + '/' + subspeciality_id, {'YII_CSRF_TOKEN':csrf});" /><?php // echo $result->nhs_num        ?></td>
                 </tr>
               <?php } ?>
             </tbody>
@@ -258,8 +272,9 @@ if ($virtual_clinic_id > 0 && isset($clinics[$virtual_clinic_id])) {
        * takes the user to the episode ot patient summary; so we need to
        * calculate the value of the last two checkboxes, 'review' and 'flag'):
        */
-      if ($(this).parent().children().index($(this)) > (6 + <?php 
-      echo count(VirtualClinic::model()->columns[$clinic->name]) ;
+      if ($(this).parent().children().index($(this)) > (8 + <?php 
+      
+      echo count(Yii::app()->params['virtualClinic.columns'][$clinic->name]) ;
               ?>)) {
         return true;
       }
