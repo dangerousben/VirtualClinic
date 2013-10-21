@@ -344,7 +344,7 @@ class VirtualClinic extends CActiveRecord {
         $criteria = new CDbCriteria;
         $criteria->compare('episode_id', $episode->id);
         $criteria->compare('event_id', $event->id);
-        $criteria->order = 'datetime desc';
+        $criteria->order = 'event.created_date desc';
 
         return $element::model()
                         ->with('event')
