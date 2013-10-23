@@ -18,6 +18,16 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.html The GNU General Public License V3.0
  */
 return array(
+    'components' => array(
+        'urlManager' => array(
+            'rules' => array(
+                // Virtual Clinic:
+                'virtualClinic/review/<id:\d+>/<selected:\w+>/<clinic_id:\d+>/<site_id:\d+>/<subspeciality_id:\d+>' => '/VirtualClinic/VirtualClinic/review',
+                'virtualClinic/flag/<id:\d+>/<selected:\w+>/<clinic_id:\d+>/<site_id:\d+>/<subspeciality_id:\d+>' => '/VirtualClinic/VirtualClinic/flag',
+                'virtualClinic/results/<page_num:\d+>/<sort_dir:\d+>/<sort_by:\d+>/<site_id:\d+>/<clinic_id:\d+>' => '/VirtualClinic/virtualClinic/results/',
+            ),
+        ),
+    ),
     'params' => array(
         /*
          * Each clinic entry must be matched 1-to-1 with each 'columns' entry
@@ -96,7 +106,7 @@ return array(
 //                        array('med_1_left', 'shortname'),
 //                        array('med_2_left', 'shortname'),
 //                        array('med_3_left', 'shortname')))
-                        ),
+            ),
             'Cataract' => array(
                 'History' => array(
                     'event_type' => 'OphCiExamination',
