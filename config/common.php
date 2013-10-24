@@ -19,6 +19,21 @@
  */
 return array(
     'components' => array(
+        'event' => array(
+            'class' => 'OEEventManager',
+            'observers' => array('virtual_clinic_update' =>
+                array('update' =>
+                    array('method' => 'clinicUpdate', 'path' => '/modules/VirtualClinic/components',
+                        'class' => 'Clinic')),
+                'virtual_clinic_review' =>
+                array('review' =>
+                    array('method' => 'reviewPatient', 'path' => '/modules/VirtualClinic/components',
+                        'class' => 'Clinic')),
+                'virtual_clinic_flag' =>
+                array('flag' =>
+                    array('method' => 'flagPatient', 'path' => '/modules/VirtualClinic/components',
+                        'class' => 'Clinic'))),
+        ),
         'urlManager' => array(
             'rules' => array(
                 // Virtual Clinic:
@@ -86,26 +101,36 @@ return array(
         'virtualClinic.columns' => array(
             'Glaucoma' => array(
                 'IOP' => array(
+                    'index' => 6,
                     'event_type' => 'OphCiExamination',
                     'class_name' => 'Element_OphCiExamination_IntraocularPressure',
                     'field' => array(array('left_reading', 'value'), array('right_reading', 'value'))),
-//                'CCT' => array(
-//                    'event_type' => 'OphCiExamination',
-//                    'class_name' => 'Element_OphCiExamination_CentralCornealThickness',
-//                    'field' => array(array('left_cct'), array('right_cct'))),
-//                'Comments' => array(
-//                    'event_type' => 'OphCiExamination',
-//                    'class_name' => 'Element_OphCiExamination_GlaucomaManagement',
-//                    'field' => 'comments'),
-//                'Medications' => array(
-//                    'event_type' => 'OphCiExamination',
-//                    'class_name' => 'Element_OphCiExamination_GlaucomaManagement',
-//                    'field' => array(array('med_1_right', 'shortname'),
-//                        array('med_2_right', 'shortname'),
-//                        array('med_3_right', 'shortname'),
-//                        array('med_1_left', 'shortname'),
-//                        array('med_2_left', 'shortname'),
-//                        array('med_3_left', 'shortname')))
+                'CCT' => array(
+                    'index' => 7,
+                    'event_type' => 'OphCiExamination',
+                    'class_name' => 'Element_OphCiExamination_AnteriorSegment_CCT',
+                    'field' => array(array('left_value'), array('right_value'))),
+                'Comments' => array(
+                    'index' => 8,
+                    'event_type' => 'OphCiExamination',
+                    'class_name' => 'Element_OphCiExamination_GlaucomaManagement',
+                    'field' => 'comments'),
+                'Medications' => array(
+                    'index' => 9,
+                    'event_type' => 'OphCiExamination',
+                    'class_name' => 'Element_OphCiExamination_GlaucomaManagement',
+                    'field' => array(array('med_1_right', 'shortname'),
+                        array('med_2_right', 'shortname'),
+                        array('med_3_right', 'shortname'),
+                        array('med_1_left', 'shortname'),
+                        array('med_2_left', 'shortname'),
+                        array('med_3_left', 'shortname'))),
+                'Follow Up' => array(
+                    index => 10,
+                    'event_type' => 'OphCiExamination',
+                    'class_name' => 'Element_OphCiExamination_ClinicOutcome',
+                    'field' => 'followUp'
+                )
             ),
             'Cataract' => array(
                 'History' => array(
