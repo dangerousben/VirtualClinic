@@ -122,6 +122,7 @@ class VirtualClinicPatient extends Patient {
                 . " JOIN patient ON patient.id = t.patient_id";
 //        $criteria->join = "JOIN contact ON contact.parent_id = t.patient_id AND contact.parent_class='Patient'"
 //                . " JOIN patient ON patient.id = t.patient_id";
+        //  TODO refactor - part of old way of doing things:
         $condition = $this->getRealClinicId($params['virtual_clinic_id']);
         $criteria->condition = 'virtual_clinic_patient.site_id=' . $params['site_id'] . $condition;
         $criteria->condition .= ' and virtual_clinic_patient.reviewed=' . $params['reviewed'];

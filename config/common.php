@@ -45,6 +45,10 @@ return array(
     ),
     'params' => array(
         /*
+         * Show patient entries via CRN or NHS number?
+         */
+        'virtualClinic.index.CRN' => true,
+        /*
          * Each clinic entry must be matched 1-to-1 with each 'columns' entry
          * (see below).
          */

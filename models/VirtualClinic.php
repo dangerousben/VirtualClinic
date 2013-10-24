@@ -248,7 +248,6 @@ class VirtualClinic extends CActiveRecord {
     $obj = $this->getElementForLatestEventInEpisode($pid, $event_type, $nameOfClass);
     $ret = null;
     if ($obj) {
-      $x = $obj->id;
       if (is_array($field)) {
         $ret = array();
         foreach ($field as $fld) {

@@ -57,12 +57,17 @@ class VirtualClinicController extends BaseController {
     $sort = ($sort_dir == 0) ? 'asc' : 'desc';
     switch ($sort_by) {
       case 0:
-        $sort_by = 'hos_num*1';
+        $useCrn = Yii::app()->params['virtualClinic.index.CRN'] ? true : false;
+        if ($useCrn) {
+          $sort_by = 'nhs_num * 1';
+        } else {
+          $sort_by = 'hos_num * 1';
+        }
         break;
-      case 1:
+      case 1: // TODO - contact have been refactored, need to changed how this is done:
         $sort_by = 'first_name';
         break;
-      case 2:
+      case 2: // TODO - contact have been refactored, need to changed how this is done:
         $sort_by = 'last_name';
         break;
       case 3:

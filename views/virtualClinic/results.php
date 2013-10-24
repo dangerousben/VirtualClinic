@@ -116,6 +116,8 @@ echo CHtml::hiddenField('YII_CSRF_TOKEN',Yii::app()->request->csrfToken);
         }
         $x = $clinics;
         $y = $virtual_clinic_id;
+        $mainIndex = 'ID';
+        $useCrn = Yii::app()->params['virtualClinic.index.CRN'] ? true : false;
         ?>
         <h3>Results for <?php echo $clinics[$virtual_clinic_id]->name ?> Clinic, <?php echo $sites[$site_id - 1]->name ?>. You are viewing patients <?php echo $from ?> to <?php echo $to ?>, of <?php echo $total_items ?></h3>
 
@@ -123,9 +125,10 @@ echo CHtml::hiddenField('YII_CSRF_TOKEN',Yii::app()->request->csrfToken);
           <table class="items">
             <thead>
               <tr>
-                <th style="display: none" id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/0/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">CRN</a></th>
-                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/1/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">First Name</a></th>
-                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/2/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">Last Name</a></th>
+                <th style="display: none" id="patient-grid_c0"></th>
+                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/0/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>"><?php echo $mainIndex?></a></th>
+                <th id="patient-grid_c0"><!--a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/1/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">First Name</a-->First Name</th>
+                <th id="patient-grid_c0"><!--a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/2/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">Last Name</a-->Last Name</th>
                 <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/3/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">Age</a></th>
                 <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/4/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">S/B</a></th>
                 <!-- speciality-specific column headings: -->
@@ -138,7 +141,6 @@ echo CHtml::hiddenField('YII_CSRF_TOKEN',Yii::app()->request->csrfToken);
                 <?php }
                 ?>
                 <!-- end of speciality-specific column headings -->
-                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/5/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">Follow Up</a></th>
                 <th id="patient-grid_c0" width="8%"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/6/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">Date</a></th>
   <!--										<th id="patient-grid_c5">Site</th>-->
                 <th id="patient-grid_c5" width="3%">5yr Risk</th>
@@ -152,6 +154,11 @@ echo CHtml::hiddenField('YII_CSRF_TOKEN',Yii::app()->request->csrfToken);
                 ?>
                 <tr class="<?php if ($i % 2 == 0) { ?>even<?php } else { ?>odd<?php } ?>">
                   <?php
+                  if ($useCrn) {
+                    $searchIndex = $result->patient->nhs_num;
+                  } else {
+                    $searchIndex = $result->patient->hos_num;
+                  }
                   // need to check of there is an episode for this firm:
 
                   $firm_id = $result->firm_id;
@@ -168,6 +175,7 @@ echo CHtml::hiddenField('YII_CSRF_TOKEN',Yii::app()->request->csrfToken);
                     <?php
                   }
                   ?>
+                  <td style="vertical-align:middle"><?php echo $searchIndex ?></td>
                   <td style="vertical-align:middle"><?php echo $result->patient->contact->first_name ?></td>
                   <td style="vertical-align:middle"><?php echo $result->patient->contact->last_name ?></td>
                   <td style="vertical-align:middle"><?php echo $result->patient->getAge() ?></td>
@@ -190,7 +198,6 @@ echo CHtml::hiddenField('YII_CSRF_TOKEN',Yii::app()->request->csrfToken);
                   ?>
                   <!-- end of speciality-specific column values -->
 
-                  <td style="vertical-align:middle"><?php echo $result->follow_up ?></td>
                   <td style="vertical-align:middle"><?php
               if ($result->visit_date) {
                 $date = new DateTime($result->visit_date);
