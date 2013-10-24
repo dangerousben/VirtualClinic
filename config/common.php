@@ -126,7 +126,7 @@ return array(
                         array('med_2_left', 'shortname'),
                         array('med_3_left', 'shortname'))),
                 'Follow Up' => array(
-                    index => 10,
+                    'index' => 10,
                     'event_type' => 'OphCiExamination',
                     'class_name' => 'Element_OphCiExamination_ClinicOutcome',
                     'field' => 'followUp'
