@@ -138,7 +138,6 @@ echo CHtml::hiddenField('YII_CSRF_TOKEN',Yii::app()->request->csrfToken);
                 <?php }
                 ?>
                 <!-- end of speciality-specific column headings -->
-                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/5/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">Follow Up</a></th>
                 <th id="patient-grid_c0" width="8%"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/6/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">Date</a></th>
   <!--										<th id="patient-grid_c5">Site</th>-->
                 <th id="patient-grid_c5" width="3%">5yr Risk</th>
@@ -190,7 +189,6 @@ echo CHtml::hiddenField('YII_CSRF_TOKEN',Yii::app()->request->csrfToken);
                   ?>
                   <!-- end of speciality-specific column values -->
 
-                  <td style="vertical-align:middle"><?php echo $result->follow_up ?></td>
                   <td style="vertical-align:middle"><?php
               if ($result->visit_date) {
                 $date = new DateTime($result->visit_date);
