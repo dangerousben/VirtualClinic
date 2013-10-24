@@ -51,6 +51,28 @@ return array(
         'virtualClinic.clinics' => array('Glaucoma', 'Cataract', 'Accident & Emergency'),
         /*
          * 
+         */
+        'virtualClinic.defaultColumns' => array(
+            'Default' => array(
+                'CRN' => array(
+                    'index' => 6,
+                    'field' => array(array('patient', 'hos_num'))),
+                'DoB' => array(
+                    'index' => 6,
+                    'field' => array(array('patient', 'dob'))),
+                'Forename' => array(
+                    'index' => 6,
+                    'field' => array(array('patient', 'contact', 'first_name'))),
+                'Surname' => array(
+                    'index' => 6,
+                    'field' => array(array('patient', 'contact', 'last_name'))),
+                'S/B' => array(
+                    'index' => 6,
+                    'field' => array(array('seen_by_user', 'fullName'))),
+            )
+        ),
+        /*
+         * 
          * The columns declaration must contain an array of
          * clinic_name => array(column_definitions), where clinic_name matches
          * one of the defined clinics from the clinic list.

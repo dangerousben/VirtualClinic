@@ -147,7 +147,17 @@ class VirtualClinic extends CActiveRecord {
    * clinics exist.
    */
   public function getColumnNames($subspeciality) {
+    $r = Yii::app()->params['virtualClinic.defaultColumns'];
+    $s = Yii::app()->params['virtualClinic.defaultColumns']['Default'];
+    foreach (array_keys(Yii::app()->params['virtualClinic.defaultColumns']['Default']) as $x) {
+      $y = $this->getDefaultColumnValue(1, 'Default', $x);
+    }
     return array_keys(Yii::app()->params['virtualClinic.columns'][$subspeciality->name]);
+  }
+
+  public function getDefaultColumnValue($pid, $subspeciality, $columnName) {
+    $y = Yii::app()->params['virtualClinic.defaultColumns'][$subspeciality][$columnName];
+    return $this->getColumnValues($pid, Yii::app()->params['virtualClinic.defaultColumns'][$subspeciality][$columnName]);
   }
 
   /**
@@ -164,8 +174,7 @@ class VirtualClinic extends CActiveRecord {
    * an array of values is returned.
    */
   public function getColumnValue($pid, $subspeciality, $columnName) {
-    return $this->getColumnValues($pid,
-            Yii::app()->params['virtualClinic.columns'][$subspeciality->name][$columnName]);
+    return $this->getColumnValues($pid, Yii::app()->params['virtualClinic.columns'][$subspeciality->name][$columnName]);
   }
 
   /**
@@ -241,14 +250,20 @@ class VirtualClinic extends CActiveRecord {
    * an array of values is returned.
    */
   public function getColumnValues($pid, $col) {
-    $event_type = $col['event_type'];
-    $class_name = $col['class_name'];
-    $field = $col['field'];
-    $nameOfClass = new $class_name();
-    $obj = $this->getElementForLatestEventInEpisode($pid, $event_type, $nameOfClass);
+    if (isset($col['event_type'])) {
+      $event_type = $col['event_type'];
+      $class_name = $col['class_name'];
+      $field = $col['field'];
+      $nameOfClass = new $class_name();
+      $obj = $this->getElementForLatestEventInEpisode($pid, $event_type, $nameOfClass);
+    } else {
+      // we're looking for a VC patient object so search by PID:
+      $obj = VirtualClinicPatient::model()->find('patient_id=:patient_id', 
+              array(':patient_id' => $pid));
+      $field = $col['field'];
+    }
     $ret = null;
     if ($obj) {
-      $x = $obj->id;
       if (is_array($field)) {
         $ret = array();
         foreach ($field as $fld) {
