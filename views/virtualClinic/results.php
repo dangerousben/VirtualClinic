@@ -124,8 +124,8 @@ echo CHtml::hiddenField('YII_CSRF_TOKEN',Yii::app()->request->csrfToken);
             <thead>
               <tr>
                 <th style="display: none" id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/0/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">CRN</a></th>
-                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/1/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">First Name</a></th>
-                <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/2/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">Last Name</a></th>
+                <th id="patient-grid_c0"><!--a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/1/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">First Name</a-->First Name</th>
+                <th id="patient-grid_c0"><!--a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/2/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">Last Name</a-->Last Name</th>
                 <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/3/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">Age</a></th>
                 <th id="patient-grid_c0"><a href="/virtualClinic/results/<?php echo $pagen ?>/<?php if ($sort_dir == 0) { ?>1<?php } else { ?>0<?php } ?>/4/<?php echo $site_id ?>/<?php echo $virtual_clinic_id ?>">S/B</a></th>
                 <!-- speciality-specific column headings: -->
