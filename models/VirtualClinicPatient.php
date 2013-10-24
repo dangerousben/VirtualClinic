@@ -89,6 +89,7 @@ class VirtualClinicPatient extends Patient {
             'virtual_clinic' => array(self::BELONGS_TO, 'VirtualClinic', 'virtual_clinic_id'),
             'firm' => array(self::BELONGS_TO, 'Firm', 'firm_id'),
             'subspecialty' => array(self::BELONGS_TO, 'Subspecialty', 'subspeciality_id'),
+            'seen_by_user' => array(self::BELONGS_TO, 'User', 'seen_by_user_id'),
 //            'clinic_type' => array(self::BELONGS_TO, 'VirtualClinicType', 'clinic_type_id'),
         );
     }
