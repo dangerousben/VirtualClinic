@@ -118,8 +118,7 @@ class VirtualClinicPatient extends Patient {
      */
     public function searchHospitalNumbers($params) {
         $criteria = new CDbCriteria;
-        $criteria->join = "JOIN contact ON contact.parent_id = t.patient_id AND contact.parent_class='Patient'"
-                . " JOIN patient ON patient.id = t.patient_id";
+        $criteria->join = " JOIN patient ON patient.id = t.patient_id JOIN contact ON contact.id = patient.contact_id";
 
         $criteria->condition = 'site_id=' . $params['site_id'] . ' and subspeciality_id=' . $params['clinic_id'];
         if (is_array($params['sort_by'])) {
@@ -150,8 +149,7 @@ class VirtualClinicPatient extends Patient {
         }
 
         $criteria = new CDbCriteria;
-        $criteria->join = "JOIN contact ON contact.parent_id = t.patient_id AND contact.parent_class='Patient'"
-                . " JOIN patient ON patient.id = t.patient_id";
+        $criteria->join = " JOIN patient ON patient.id = t.patient_id JOIN contact ON contact.id = patient.contact_id";
         if (is_array($params['sort_by'])) {
             foreach($params['sort_by'] as $sort) {
                 $criteria->order = $sort . ' ' . $params['sort_dir'];

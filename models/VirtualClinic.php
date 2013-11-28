@@ -172,9 +172,8 @@ class VirtualClinic {
         $event_type = $col['event_type'];
         $class_name = $col['class_name'];
         $field = $col['field'];
-        $nameOfClass = new $class_name();
-        $obj = $this->getElementForLatestEventInEpisode($pid, $event_type,
-                $nameOfClass);
+        $obj = $this->getElementForLatestEventInEpisode($pid, $event_type, $class_name);
+
         $ret = null;
         if ($obj) {
             if (is_array($field)) {
@@ -309,7 +308,7 @@ class VirtualClinic {
                 $criteria = new CDbCriteria;
                 $criteria->compare('episode_id', $episode->id);
                 $criteria->compare('event_id', $event->id);
-                $criteria->order = 'datetime desc';
+                $criteria->order = 't.created_date desc';
 
                 return $element::model()
                                 ->with('event')
